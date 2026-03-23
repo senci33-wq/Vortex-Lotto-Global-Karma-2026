@@ -1,0 +1,26 @@
+[
+  {
+    "id": "aux_tafel",
+    "name": "Augsburger Tafel",
+    "region": "Augsburg, Deutschland",
+    "description": "Lebensmittelrettung und Unterstützung für Bedürftige direkt vor Ort.",
+    "link": "https://www.augsburger-tafel.de/",
+    "category": "Lokal"
+  },
+  {
+    "id": "global_water",
+    "name": "Charity: Water",
+    "region": "Global (Fokus: Afrika/Asien)",
+    "description": "Sauberes Trinkwasser für Regionen ohne Infrastruktur. Transparent und effektiv.",
+    "link": "https://www.charitywater.org/",
+    "category": "Global"
+  },
+  {
+    "id": "vortex_feedback",
+    "name": "Vortex Karma Vorschlag",
+    "region": "Weltweit",
+    "description": "Du kennst ein Projekt, das Hilfe braucht? Schlag es uns vor!",
+    "link": "https://senci33-wq.github.io/Vortex-Lotto-Global-Karma-2026/",
+    "category": "Community"
+  }
+]
