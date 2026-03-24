@@ -1,18 +1,19 @@
-name: Build Android APK
+name: Build Android APK (Final Attempt)
 on: [push, workflow_dispatch]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04 # Sehr stabile Version
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
           sudo apt update
           sudo apt install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good
@@ -21,11 +22,11 @@ jobs:
 
       - name: Build with Buildozer
         run: |
-          # Wir akzeptieren alle Lizenzen automatisch
           yes | buildozer -v android debug
         
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Vortex-App
+          name: Vortex-Karma-App
           path: bin/*.apk
+
