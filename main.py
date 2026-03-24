@@ -232,7 +232,11 @@ class QuantumLottoKarmaApp(App):
 
     def get_q(self, pool):
         try:
-            r = requests.get("https://qrng.anu.edu.au/API/jsonI.php?length=1&type=uint8", timeout=2.5)
+             # Nutze deinen neuen API-Key für die offizielle v1 Schnittstelle
+            api_key = "BfPlcBrXfz5JKtQs0nlTN7OBJx2nGsuI5WUaKtvR"
+            url = f"https://quantumnumbers.anu.edu.au/api/v1/random?length=1&type=uint8&apiKey={api_key}"
+            r = requests.get(url, timeout=2.5)
+
             return pool[r.json()['data'][0] % len(pool)]
         except: return secrets.choice(pool)
 
