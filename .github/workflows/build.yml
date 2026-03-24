@@ -1,9 +1,9 @@
-name: Build Android APK
+name: Build Android APK (Final Attempt)
 on: [push, workflow_dispatch]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # Wir nutzen eine sehr stabile, feste Version
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -15,11 +15,12 @@ jobs:
 
       - name: Repair Workstation and Install Dependencies
         run: |
-          # 1. GitHubs Werkstatt reparieren
-          sudo apt-get clean
-          sudo apt-get update --fix-missing
-          sudo dpkg --configure -a
-          sudo apt-get install -f
+          # 1. GitHubs Werkstatt ZWINGEN, sich zu reparieren
+          sudo rm -rf /var/lib/apt/lists/* # Löscht alte Paketlisten
+          sudo apt-get clean                 # Leert den Cache
+          sudo apt-get update --fix-missing  # Lädt frische Listen und fixiert Fehler
+          sudo dpkg --configure -a          # Beendet unterbrochene Installationen
+          sudo apt-get install -f            # Repariert Abhängigkeiten
           
           # 2. Werkzeuge installieren
           sudo apt-get install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good
@@ -36,7 +37,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildozer-
 
-      - name: Build with Buildozer (Turbo-Mode)
+      - name: Build with Buildozer
         run: |
           yes | buildozer -v android debug
         
