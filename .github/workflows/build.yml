@@ -1,5 +1,5 @@
 name: Build Android APK
-on: [push]
+on: [push, workflow_dispatch]
 
 jobs:
   build:
@@ -7,23 +7,25 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install Dependencies
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y python3-pip build-essential git python3 dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
-          pip3 install --user --upgrade Cython==0.29.33 virtualenv buildozer
+          sudo apt install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+          pip install --upgrade pip
+          pip install buildozer cython==0.29.33
 
-      - name: Build APK
+      - name: Build with Buildozer
         run: |
-          export PATH=$PATH:$HOME/.local/bin
-          # Buildozer braucht eine .spec Datei. Da wir noch keine haben, 
-          # lassen wir ihn eine Standard-Datei erstellen und bauen dann.
-          yes | buildozer init
-          # Hier sagen wir dem Roboter: Bau die App für Android!
-          buildozer -v android debug
+          # Wir erzwingen hier den Build-Prozess
+          yes | buildozer -v android debug
         
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
-          name: Vortex-App-Vorschau
+          name: Vortex-App-Paket
           path: bin/*.apk
