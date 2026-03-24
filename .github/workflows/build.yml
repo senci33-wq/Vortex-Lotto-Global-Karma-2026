@@ -28,4 +28,3 @@ jobs:
         with:
           name: Vortex-App
           path: bin/*.apk
-
