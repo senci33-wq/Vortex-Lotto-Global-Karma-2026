@@ -15,7 +15,7 @@ fullscreen = 0
 # TURBO-MODUS: Nur für moderne Handys bauen spart 50% Zeit
 android.archs = arm64-v8a
 android.allow_backup = True
-icon.filename = icon.png
 
 # Berechtigungen für das Internet (wegen der API)
 android.permissions = INTERNET
+
