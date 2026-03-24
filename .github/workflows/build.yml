@@ -13,32 +13,23 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Repair Workstation and Install Dependencies
+      - name: Repair and Install Dependencies
         run: |
-          # 1. GitHubs Werkstatt ZWINGEN, sich zu reparieren
-          sudo rm -rf /var/lib/apt/lists/* # Löscht alte Paketlisten
-          sudo apt-get clean                 # Leert den Cache
-          sudo apt-get update --fix-missing  # Lädt frische Listen und fixiert Fehler
-          sudo dpkg --configure -a          # Beendet unterbrochene Installationen
-          sudo apt-get install -f            # Repariert Abhängigkeiten
+          # Werkbank aufräumen
+          sudo apt clean
+          sudo dpkg --configure -a
           
-          # 2. Werkzeuge installieren
-          sudo apt-get install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+          # Werkzeuge installieren
+          sudo apt update --fix-missing
+          sudo apt install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good
           
-          # 3. Python-Werkzeuge installieren
+          # Python-Werkzeuge installieren
           pip install --upgrade pip
           pip install Cython==0.29.33 buildozer
 
-      - name: Cache Buildozer Global
-        uses: actions/cache@v4
-        with:
-          path: ~/.buildozer
-          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-          restore-keys: |
-            ${{ runner.os }}-buildozer-
-
       - name: Build with Buildozer
         run: |
+          # Wir akzeptieren alle Lizenzen automatisch
           yes | buildozer -v android debug
         
       - name: Upload APK
