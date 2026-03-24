@@ -1,9 +1,9 @@
-name: Build Android APK (Final Attempt)
+name: Build Android APK
 on: [push, workflow_dispatch]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04  # Wir nutzen eine sehr stabile, feste Version
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
