@@ -1,0 +1,29 @@
+name: Build Android APK
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip build-essential git python3 dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
+          pip3 install --user --upgrade Cython==0.29.33 virtualenv buildozer
+
+      - name: Build APK
+        run: |
+          export PATH=$PATH:$HOME/.local/bin
+          # Buildozer braucht eine .spec Datei. Da wir noch keine haben, 
+          # lassen wir ihn eine Standard-Datei erstellen und bauen dann.
+          yes | buildozer init
+          # Hier sagen wir dem Roboter: Bau die App für Android!
+          buildozer -v android debug
+        
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: Vortex-App-Vorschau
+          path: bin/*.apk
