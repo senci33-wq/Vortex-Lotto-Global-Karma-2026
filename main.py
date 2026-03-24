@@ -1,3 +1,9 @@
+import os
+import certifi
+
+# Teilt OpenSSL mit, wo die Zertifikate von 'certifi' liegen
+os.environ['SSL_CERT_FILE'] = certifi.where()
+
 # -*- coding: utf-8 -*-
 """Untitled5.ipynb
 
