@@ -8,6 +8,14 @@
     "category": "Lokal"
   },
   {
+    "id": "sanfilippo_initiative",
+    "name": "Sanfilippo Initiative",
+    "region": "Deutschland / Global",
+    "description": "Unterstützung der Forschung und Hilfe für Kinder, die an der seltenen Stoffwechselkrankheit MPS III leiden.",
+    "link": "https://sanfilippo-initiative.de/",
+    "category": "Medizinische Forschung"
+  },
+  {
     "id": "global_water",
     "name": "Charity: Water",
     "region": "Global (Fokus: Afrika/Asien)",
@@ -24,3 +32,5 @@
     "category": "Community"
   }
 ]
+
+
