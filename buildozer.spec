@@ -4,17 +4,21 @@ package.name = vortexlotto
 package.domain = org.senci33
 source.dir = .
 source.include_exts = py,kv,json
-version = 0.1
+version = 0.2
 
-# Wir nehmen nur das absolute Minimum!
-requirements = python3,kivy
+# WICHTIG: Diese 4 müssen drin sein für die Quanten-Abfrage!
+requirements = python3,kivy,requests,certifi
 
 orientation = portrait
 fullscreen = 0
-android.api = 33
+android.api = 31
 android.minapi = 21
 android.ndk = 25b
 android.archs = arm64-v8a
 
+# Keine Bilder = Kein Absturz
+# icon.filename = %(source.dir)s/icon.png <-- Bleibt aus!
+
 [buildozer]
 log_level = 2
+
