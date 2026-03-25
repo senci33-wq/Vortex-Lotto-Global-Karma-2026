@@ -12,34 +12,43 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: System-Abhängigkeiten installieren
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses6 libncursesw6 cmake libffi-dev libssl-dev
-          pip3 install --user --upgrade Cython==0.29.33 buildozer
+          sudo apt install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses6 libncursesw6 cmake libffi-dev libssl-dev libsqlite3-dev
+          pip install --upgrade pip
+          pip install Cython==0.29.33 buildozer
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Android Lizenzen erzwingen
+      - name: Buildozer Spec automatisch reparieren
         run: |
-          # Wir erstellen die Lizenz-Dateien direkt im Home-Verzeichnis
-          mkdir -p ~/.android
-          touch ~/.android/repositories.cfg
-          # Dieser Befehl akzeptiert alles, was im SDK-Manager auftaucht
-          yes | sdkmanager --licenses || true
-          
-          # Spezial-Trick: Wir sagen Buildozer, er soll beim ersten Lauf alles schlucken
-          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
-          echo -e "\n8933bad161affd0d7b11868f4857d9b91ad1a1b8" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-          echo -e "\n24333f8a63b6825ea9c5573f843522956199021a" > ~/.buildozer/android/platform/android-sdk/licenses/android-googletv-license
-          echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
+          # Wir erzwingen die stabilen Versionen direkt in der Datei
+          sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
+          sed -i 's/android.api = .*/android.api = 34/' buildozer.spec
+          sed -i 's/android.minapi = .*/android.minapi = 21/' buildozer.spec
+          sed -i 's/android.sdk_build_tools_revision = .*/android.sdk_build_tools_revision = 34.0.0/' buildozer.spec
+          # Sicherstellen, dass die Requirements stimmen
+          sed -i 's/requirements = .*/requirements = python3, kivy==2.3.0, requests, urllib3, chardet, idna, certifi/' buildozer.spec
 
       - name: Build mit Buildozer
         run: |
-          # Wir nutzen 'yes', um Buildozer bei jeder Frage während des Prozesses mit 'y' zu antworten
           export PATH=$PATH:$HOME/.local/bin
+          # 'yes' drückt für uns alle Knöpfe
           yes | buildozer -v android debug
-          
+
       - name: APK als Artefakt hochladen
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Vortex-Lotto-APK
