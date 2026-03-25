@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Code
@@ -15,23 +15,30 @@ jobs:
       - name: System-Abhängigkeiten installieren
         run: |
           sudo apt update
-          # Wir lassen libtinfo5 weg, da es veraltet ist.
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses6 libncursesw6 cmake libffi-dev libssl-dev
           pip3 install --user --upgrade Cython==0.29.33 buildozer
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Android Lizenzen akzeptieren
+      - name: Android Lizenzen erzwingen
         run: |
+          # Wir erstellen die Lizenz-Dateien direkt im Home-Verzeichnis
           mkdir -p ~/.android
           touch ~/.android/repositories.cfg
-          # Wir akzeptieren die Lizenzen direkt über Buildozer
+          # Dieser Befehl akzeptiert alles, was im SDK-Manager auftaucht
           yes | sdkmanager --licenses || true
+          
+          # Spezial-Trick: Wir sagen Buildozer, er soll beim ersten Lauf alles schlucken
+          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+          echo -e "\n8933bad161affd0d7b11868f4857d9b91ad1a1b8" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          echo -e "\n24333f8a63b6825ea9c5573f843522956199021a" > ~/.buildozer/android/platform/android-sdk/licenses/android-googletv-license
+          echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
 
       - name: Build mit Buildozer
         run: |
+          # Wir nutzen 'yes', um Buildozer bei jeder Frage während des Prozesses mit 'y' zu antworten
           export PATH=$PATH:$HOME/.local/bin
-          # Buildozer erledigt den Rest
-          buildozer -v android debug
-
+          yes | buildozer -v android debug
+          
       - name: APK als Artefakt hochladen
         uses: actions/upload-artifact@v4
         with:
