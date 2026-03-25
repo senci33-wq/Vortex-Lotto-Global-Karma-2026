@@ -23,35 +23,38 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Maximale System-Abhängigkeiten
+      - name: System-Abhängigkeiten (inkl. Aidl-Fix)
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev libncurses6 libncursesw6 cmake libffi-dev libssl-dev libsqlite3-dev gettext libgdbm-dev libnss3-dev libreadline-dev libdb-dev
+          # lib32stdc++6 und lib32z1 helfen oft bei alten Android-Tools (Aidl)
+          sudo apt install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev \
+          libncurses6 libncursesw6 cmake libffi-dev libssl-dev libsqlite3-dev gettext \
+          libgdbm-dev libnss3-dev libreadline-dev libdb-dev libstdc++6
           pip install --upgrade pip
           pip install Cython==0.29.33 buildozer
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Buildozer Spec Auto-Fix
+      - name: Buildozer Spec erzwingen
         run: |
-          # Wir löschen alte Reste komplett
+          # Wir löschen ALLES Alte, damit er die SDK-Tools frisch lädt
           rm -rf .buildozer/
-          # Wir erzwingen API 33 (sehr stabil) und korrekte Requirements
+          # Wir nutzen API 33 und Build-Tools 33.0.0 - das ist das stabilste Duo für Aidl
           sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
           sed -i 's/android.api = .*/android.api = 33/' buildozer.spec
           sed -i 's/android.sdk_build_tools_revision = .*/android.sdk_build_tools_revision = 33.0.0/' buildozer.spec
+          sed -i 's/android.ndk = .*/android.ndk = 25b/' buildozer.spec
+          # Minimale Requirements für den ersten Erfolg
           sed -i 's/requirements = .*/requirements = python3, kivy==2.2.1, requests, urllib3, chardet, idna, certifi/' buildozer.spec
 
       - name: Build mit Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Wir lassen 'yes' weg und nutzen den internen Check, um den Broken Pipe Fehler zu vermeiden
+          # Wir starten den Build und sagen 'Ja' zu allem
           buildozer -v android debug
 
-      - name: APK oder Log hochladen
+      - name: APK hochladen
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Vortex-Lotto-Ergebnis
-          path: |
-            bin/*.apk
-            .buildozer/android/platform/build-*/build/libs/
+          name: Vortex-Lotto-APK-Paket
+          path: bin/*.apk
