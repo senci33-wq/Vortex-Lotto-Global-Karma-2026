@@ -5,13 +5,12 @@ package.name = vortexlotto
 package.domain = org.senci33
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,json
-version = 0.1
+version = 1.0
 
 # -- Anforderungen (Internet & SSL fix) --
-requirements = python3,kivy,requests,urllib3,certifi,idna,charset-normalizer,openssl
+requirements = python3,kivy==2.3.0,requests,urllib3,certifi,idna,charset-normalizer,openssl
 
-# -- Bilder (Direkte Pfade ohne Umwege) --
-# WICHTIG: Die Dateien müssen icon.png und presplash.png heißen!
+# -- Bilder (Direkte Zuweisung) --
 icon.filename = icon.png
 presplash.filename = presplash.png
 
@@ -30,3 +29,4 @@ android.allow_backup = True
 [buildozer]
 log_level = 2
 warn_on_root = 1
+
