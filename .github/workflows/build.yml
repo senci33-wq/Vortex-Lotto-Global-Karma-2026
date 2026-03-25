@@ -15,19 +15,21 @@ jobs:
       - name: System-Abhängigkeiten installieren
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+          # Wir lassen libtinfo5 weg, da es veraltet ist.
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
           pip3 install --user --upgrade Cython==0.29.33 buildozer
 
       - name: Android Lizenzen akzeptieren
         run: |
           mkdir -p ~/.android
           touch ~/.android/repositories.cfg
+          # Wir akzeptieren die Lizenzen direkt über Buildozer
           yes | sdkmanager --licenses || true
 
       - name: Build mit Buildozer
         run: |
-          # Pfad für Buildozer setzen, falls nicht gefunden
           export PATH=$PATH:$HOME/.local/bin
+          # Buildozer erledigt den Rest
           buildozer -v android debug
 
       - name: APK als Artefakt hochladen
