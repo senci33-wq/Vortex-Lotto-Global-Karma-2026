@@ -23,34 +23,33 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: System-Abhängigkeiten
+      - name: System-Abhängigkeiten installieren
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses6 libncursesw6 cmake libffi-dev libssl-dev libsqlite3-dev
+          # Wir fügen AUTOMAKE und GETTEXT hinzu - das löst den aclocal-Fehler!
+          sudo apt install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev libncurses6 libncursesw6 cmake libffi-dev libssl-dev libsqlite3-dev gettext
           pip install --upgrade pip
           pip install Cython==0.29.33 buildozer
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Buildozer Spec Auto-Fix
         run: |
-          # Wir löschen den Cache komplett für einen sauberen Start
-          rm -rf .buildozer/
+          # Wir erzwingen stabile Versionen
           sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
           sed -i 's/android.api = .*/android.api = 34/' buildozer.spec
           sed -i 's/android.sdk_build_tools_revision = .*/android.sdk_build_tools_revision = 34.0.0/' buildozer.spec
+          # Sicherstellen, dass die Requirements sauber sind
           sed -i 's/requirements = .*/requirements = python3, kivy==2.3.0, requests, urllib3, chardet, idna, certifi/' buildozer.spec
 
       - name: Build mit Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Wir setzen das Log-Level auf 2, damit wir GENAU sehen, was schiefläuft
-          yes | buildozer -v android debug log_level=2
+          # 'yes' für die Lizenzen und Build-Fragen
+          yes | buildozer -v android debug
 
-      - name: APK hochladen (auch bei Fehlern)
+      - name: APK hochladen
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Vortex-Lotto-Log-oder-APK
-          path: |
-            bin/*.apk
-            .buildozer/android/platform/build-*/build/libs/
+          name: Vortex-Lotto-APK
+          path: bin/*.apk
