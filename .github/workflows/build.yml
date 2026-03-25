@@ -6,7 +6,6 @@ on:
 
 jobs:
   build:
-    # WECHSEL AUF 20.04 - Das löst das SSL-Problem sofort!
     runs-on: ubuntu-20.04
 
     steps:
@@ -16,7 +15,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -24,12 +23,12 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: System-Abhängigkeiten
+      - name: System-Abhängigkeiten (20.04 Korrektur)
         run: |
           sudo apt update
-          # Auf Ubuntu 20.04 sind diese Pakete extrem stabil
+          # Hier sind die korrekten Namen für Ubuntu 20.04:
           sudo apt install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev \
-          libncurses6 libncursesw6 cmake libffi-dev libssl-dev libsqlite3-dev gettext \
+          libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev libsqlite3-dev gettext \
           libgdbm-dev libnss3-dev libreadline-dev libdb-dev libstdc++6
           pip install --upgrade pip
           pip install "Cython<3.0" buildozer
@@ -37,9 +36,7 @@ jobs:
 
       - name: Buildozer Spec Hard-Reset
         run: |
-          # Wir löschen ALLES für einen sauberen Start auf dem neuen System
           rm -rf .buildozer/
-          # API 31 ist der "Sicherheits-Standard" für Kivy auf Ubuntu 20.04
           sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
           sed -i 's/android.api = .*/android.api = 31/' buildozer.spec
           sed -i 's/android.sdk_build_tools_revision = .*/android.sdk_build_tools_revision = 31.0.0/' buildozer.spec
@@ -54,5 +51,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Vortex-Lotto-Erfolg-71
+          name: Vortex-Lotto-Versuch-73
           path: bin/*.apk
