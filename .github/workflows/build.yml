@@ -1,29 +1,61 @@
-name: System-Check & Diagnose
+name: Build Android APK - Final Fix
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  diagnose:
+  build:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: System-Check
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: System-Abhängigkeiten (Basiert auf Diagnose #77)
         run: |
-          echo "### BETRIEBSSYSTEM ###"
-          lsb_release -a
-          echo "---"
-          echo "### PYTHON VERSION ###"
-          python3 --version
-          echo "---"
-          echo "### SSL BIBLIOTHEKEN ###"
-          ldconfig -p | grep ssl || echo "Kein SSL gefunden"
-          ldconfig -p | grep crypto || echo "Kein Crypto gefunden"
-          echo "---"
-          echo "### VERFÜGBARE PAKETE TESTEN ###"
           sudo apt-get update
-          apt-cache policy libncurses5-dev libncurses6 libssl-dev
-          echo "---"
-          echo "### DATEI-STRUKTUR ###"
-          ls -R
+          # Manueller SSL 1.1 Fix - Wir nehmen den sichersten Mirror
+          wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+          sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb || true
+          
+          # Wir nutzen nur die Paketnamen, die Ubuntu 22.04 laut Log garantiert findet
+          sudo apt-get install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev \
+          libncurses-dev cmake libffi-dev libssl-dev gettext libstdc++6
+          
+          pip install --upgrade pip
+          pip install "Cython<3.0" buildozer
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Buildozer Spec Hard-Reset
+        run: |
+          rm -rf .buildozer/
+          # Wir setzen auf Stabilität: API 31
+          sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
+          sed -i 's/android.api = .*/android.api = 31/' buildozer.spec
+          sed -i 's/android.sdk_build_tools_revision = .*/android.sdk_build_tools_revision = 31.0.0/' buildozer.spec
+          sed -i 's/requirements = .*/requirements = python3, kivy==2.2.1, requests, urllib3, chardet, idna, certifi/' buildozer.spec
+
+      - name: Build mit Buildozer
+        run: |
+          export PATH=$PATH:$HOME/.local/bin
+          # Wir starten den Bauprozess - jetzt ohne Paket-Hürden
+          yes | buildozer -v android debug
+
+      - name: APK hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Vortex-Lotto-V78-Final
+          path: bin/*.apk
