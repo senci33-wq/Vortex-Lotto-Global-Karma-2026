@@ -23,39 +23,36 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: System-Abhängigkeiten (Der Aidl-Fix)
+      - name: System-Abhängigkeiten (Aidl & Build-Fix)
         run: |
           sudo apt update
-          # WICHTIG: Die lib32-Pakete sind der Schlüssel für das Aidl-Problem!
+          # Wir installieren ALLES: 32-bit Libs für Aidl + Python Build Tools
           sudo apt install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev \
           libncurses6 libncursesw6 cmake libffi-dev libssl-dev libsqlite3-dev gettext \
           libgdbm-dev libnss3-dev libreadline-dev libdb-dev libstdc++6 lib32stdc++6 lib32z1
           pip install --upgrade pip
-          pip install Cython==0.29.33 buildozer
+          pip install "Cython<3.0" buildozer
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Buildozer Spec Force-Fix
+      - name: Buildozer Spec vorbereiten
         run: |
-          # Alten Müll löschen
+          # Wir löschen alte Reste für einen sauberen Start
           rm -rf .buildozer/
-          # API 31 ist wie ein gemütlicher VW Käfer: Läuft immer.
+          # Wir setzen auf API 33 - modern und extrem kompatibel
           sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
-          sed -i 's/android.api = .*/android.api = 31/' buildozer.spec
-          sed -i 's/android.minapi = .*/android.minapi = 21/' buildozer.spec
-          sed -i 's/android.sdk_build_tools_revision = .*/android.sdk_build_tools_revision = 31.0.0/' buildozer.spec
-          # Deine Lotto-App braucht diese Pakete
+          sed -i 's/android.api = .*/android.api = 33/' buildozer.spec
+          sed -i 's/android.sdk_build_tools_revision = .*/android.sdk_build_tools_revision = 33.0.0/' buildozer.spec
           sed -i 's/requirements = .*/requirements = python3, kivy==2.3.0, requests, urllib3, chardet, idna, certifi/' buildozer.spec
 
       - name: Build mit Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Wir lassen den Roboter von der Kette
+          # yes | sorgt dafür, dass alle Lizenzen automatisch akzeptiert werden
           yes | buildozer -v android debug
 
-      - name: APK hochladen
+      - name: APK hochladen (Jetzt korrekt!)
         if: always()
-        uses: uploaded-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
-          name: Vortex-Lotto-APK-Paket
+          name: Vortex-Lotto-App-Versuch-67
           path: bin/*.apk
-
