@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Code
@@ -15,7 +15,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -23,12 +23,22 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: System-Abhängigkeiten (Schlanke Version)
+      - name: System-Abhängigkeiten (Der ultimative SSL-Fix)
         run: |
           sudo apt update
-          # Wir nehmen nur die absoluten Standard-Pakete
+          # Wir holen uns libssl1.1 direkt aus dem Ubuntu-Archiv für 22.04 Kompatibilität
+          wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+          sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb || true
+          # Falls der erste Link hakt, nehmen wir den Security-Mirror
+          if [ $? -ne 0 ]; then
+            wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
+            sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
+          fi
+          
+          # Standard-Pakete ohne Versionsnummern (um 21s-Fehler zu vermeiden)
           sudo apt install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev \
-          libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev gettext
+          libncurses-dev cmake libffi-dev libssl-dev gettext libstdc++6
+          
           pip install --upgrade pip
           pip install "Cython<3.0" buildozer
           echo "$HOME/.local/bin" >> $GITHUB_PATH
@@ -36,21 +46,21 @@ jobs:
       - name: Buildozer Spec Hard-Reset
         run: |
           rm -rf .buildozer/
-          # Wir erzwingen API 31 und saubere Requirements
+          # Wir nutzen API 33 - das passt am besten zum 22.04 Image
           sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
-          sed -i 's/android.api = .*/android.api = 31/' buildozer.spec
-          sed -i 's/android.sdk_build_tools_revision = .*/android.sdk_build_tools_revision = 31.0.0/' buildozer.spec
-          sed -i 's/requirements = .*/requirements = python3, kivy==2.2.1/' buildozer.spec
+          sed -i 's/android.api = .*/android.api = 33/' buildozer.spec
+          sed -i 's/android.sdk_build_tools_revision = .*/android.sdk_build_tools_revision = 33.0.0/' buildozer.spec
+          sed -i 's/requirements = .*/requirements = python3, kivy==2.3.0, requests, urllib3, chardet, idna, certifi/' buildozer.spec
 
       - name: Build mit Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # Wir bauen OHNE Schnickschnack
+          # Wir zwingen Buildozer, alle Lizenzen zu fressen
           yes | buildozer -v android debug
 
       - name: APK hochladen
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Vortex-Lotto-Versuch-74
+          name: Vortex-Lotto-V75
           path: bin/*.apk
