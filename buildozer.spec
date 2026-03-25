@@ -1,4 +1,5 @@
 [app]
+# -- Basis Informationen --
 title = Vortex Lotto
 package.name = vortexlotto
 package.domain = org.senci33
@@ -6,13 +7,15 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,json
 version = 0.1
 
-# WICHTIG: Alle Internet-Voraussetzungen sind hier aktiv
+# -- Anforderungen (Internet & SSL fix) --
 requirements = python3,kivy,requests,urllib3,certifi,idna,charset-normalizer,openssl
 
-# Deine Bilder (ohne # davor!)
-icon.filename = %(source.dir)s/icon.png
-presplash.filename = %(source.dir)s/presplash.png
+# -- Bilder (Direkte Pfade ohne Umwege) --
+# WICHTIG: Die Dateien müssen icon.png und presplash.png heißen!
+icon.filename = icon.png
+presplash.filename = presplash.png
 
+# -- Android Einstellungen --
 orientation = portrait
 fullscreen = 0
 android.permissions = INTERNET
