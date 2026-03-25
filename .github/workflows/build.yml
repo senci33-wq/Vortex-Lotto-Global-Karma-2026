@@ -24,16 +24,21 @@ jobs:
           sudo apt install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good
           
           # Python-Werkzeuge installieren
-          pip install --upgrade pip
+           pip install --upgrade pip
           pip install Cython==0.29.33 buildozer
 
+      - name: Lizenzen akzeptieren
+        run: |
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
+          yes | sdkmanager --licenses || true
       - name: Build with Buildozer
         run: |
-          # Wir akzeptieren alle Lizenzen automatisch
-          yes | buildozer -v android debug
-        
+          buildozer -v android debug
+
+      
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Vortex-App
-          path: bin/*.apk
+      -name: Vortex-App
+      path: bin/*.apk
