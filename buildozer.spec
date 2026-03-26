@@ -4,7 +4,7 @@ package.name = vortexlotto
 package.domain = org.senci33
 source.dir = .
 source.include_exts = py,kv,json
-version = v0.4
+version = 0.5
 
 # WICHTIG: Diese 4 müssen drin sein für die Quanten-Abfrage!
 requirements = python3,kivy,requests,certifi
