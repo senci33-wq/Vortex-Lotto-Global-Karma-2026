@@ -22,7 +22,7 @@ CLR_ACCENT = get_color_from_hex("#22d3ee")
 CLR_GOLD = get_color_from_hex("#fbbf24")
 CLR_RED = get_color_from_hex("#f43f5e")
 
-# --- KONFIGURATION (Editierbare Listen) ---
+# --- LOTTERIE KONFIGURATION ---
 LOTTERIEN = {
     "6aus49": {"kugeln": 6, "max": 49, "zusatz": "SZ", "z_max": 9},
     "Eurojackpot": {"kugeln": 5, "max": 50, "zusatz": "EZ", "z_max": 12},
@@ -30,61 +30,85 @@ LOTTERIEN = {
     "Bayern-Lotto": {"kugeln": 6, "max": 49, "zusatz": "BZ", "z_max": 10}
 }
 
-SPENDEN_PROJEKTE = {
-    "BAYERN": [
-        ("Spenden für Bayern", "https://share.google/Xuehkxs9BatunONIq"),
-        ("Sternstunden e.V.", "https://www.sternstunden.de"),
-        ("LBV Bayern", "https://www.lbv.de")
-    ],
-    "AUGSBURG": [
-        ("Zoo Augsburg", "https://www.zoo-augsburg.com"), 
-        ("Bunter Kreis", "https://www.bunter-kreis.de"),
-        ("Tierheim Augsburg", "https://www.tierheim-augsburg.de")
-    ],
-    "GLOBAL": [
-        ("UNICEF", "https://www.unicef.de"), 
-        ("WWF", "https://www.wwf.de")
-    ]
-}
+class KarmaManager:
+    """Verwaltet die Spendenprojekte nach dem Playlist-Prinzip"""
+    def __init__(self):
+        self.projekte_pool = {} # Aktuelle Projekte online
+        self.verfuegbare_stapel = {} # Die noch nicht gezogenen Projekte pro Region
+
+    def update_daten(self, neue_daten):
+        self.projekte_pool = neue_daten
+        self.verfuegbare_stapel = {region: list(projekte) for region, projekte in neue_daten.items()}
+
+    def ziehe_projekt(self, region):
+        if region not in self.verfuegbare_stapel or not self.verfuegbare_stapel[region]:
+            # Wenn leer oder unbekannt, neu aus dem Pool laden
+            if region in self.projekte_pool:
+                self.verfuegbare_stapel[region] = list(self.projekte_pool[region])
+                random.shuffle(self.verfuegbare_stapel[region])
+            else:
+                return ("Standard-Projekt", "https://google.com")
+
+        # Ziehe das oberste Projekt vom Stapel
+        return self.verfuegbare_stapel[region].pop()
 
 class QuantumLottoKarmaApp(App):
     def build(self):
         self.is_drawing = False
         self.current_lotto = "6aus49"
         self.current_region = "BAYERN"
-        self.letztes_projekt = None
-        self.historie = [] # Hier werden die Ziehungen gespeichert
+        self.karma_manager = KarmaManager()
+        
+        # Sicherheitsnetz (Offline-Daten)
+        self.karma_manager.update_daten({
+            "BAYERN": [
+                ("Sternstunden e.V.", "https://www.sternstunden.de"),
+                ("LBV Bayern", "https://www.lbv.de"),
+                ("Tafel Bayern", "https://www.tafel-bayern.de")
+            ],
+            "GLOBAL": [
+                ("UNICEF", "https://www.unicef.de"),
+                ("Greenpeace", "https://www.greenpeace.de")
+            ],
+            "AUGSBURG": [
+                ("Zoo Augsburg", "https://www.zoo-augsburg.com"),
+                ("Bunter Kreis", "https://www.bunter-kreis.de")
+            ]
+        })
+
+        # Hintergrund-Task für Online-Update
+        threading.Thread(target=self.fetch_remote_projects, daemon=True).start()
 
         self.root = BoxLayout(orientation='vertical', padding=dp(15), spacing=dp(10))
 
         # 1. HEADER
-        self.root.add_widget(Label(text="VORTEX LOTTO v0.4", font_size=sp(22), bold=True, color=CLR_ACCENT, size_hint_y=None, height=dp(40)))
+        self.root.add_widget(Label(text="VORTEX LOTTO v0.5", font_size=sp(22), bold=True, color=CLR_ACCENT, size_hint_y=None, height=dp(40)))
 
         # 2. LOTTERIE AUSWAHL
         lotto_grid = GridLayout(cols=4, size_hint_y=None, height=dp(45), spacing=dp(5))
         for l_name in LOTTERIEN.keys():
-            btn = ToggleButton(text=l_name, group="lotto", state="down" if l_name == "6aus49" else "normal", font_size=sp(12))
+            btn = ToggleButton(text=l_name, group="lotto", state="down" if l_name == "6aus49" else "normal", font_size=sp(10))
             btn.bind(on_release=lambda x, n=l_name: self.set_lotto(n))
             lotto_grid.add_widget(btn)
         self.root.add_widget(lotto_grid)
 
         # 3. KUGEL-DISPLAY
         self.ball_row = BoxLayout(size_hint_y=None, height=dp(60), spacing=dp(5))
-        self.ball_labels = [Label(text="?", font_size=sp(24), bold=True, color=(0.4, 0.4, 0.4, 1)) for _ in range(7)]
+        self.ball_labels = [Label(text="?", font_size=sp(26), bold=True, color=(0.4, 0.4, 0.4, 1)) for _ in range(7)]
         for lbl in self.ball_labels: self.ball_row.add_widget(lbl)
         self.root.add_widget(self.ball_row)
 
-        # 4. HISTORIE (Scroll-Liste)
-        self.root.add_widget(Label(text="HISTORIE", font_size=sp(12), color=(0.5, 0.5, 0.5, 1), size_hint_y=None, height=dp(20)))
+        # 4. HISTORIE
+        self.root.add_widget(Label(text="LETZTE ZIEHUNGEN", font_size=sp(11), color=(0.5, 0.5, 0.5, 1), size_hint_y=None, height=dp(15)))
         self.history_scroll = ScrollView(size_hint_y=None, height=dp(100))
         self.history_list = BoxLayout(orientation='vertical', size_hint_y=None, spacing=dp(2))
         self.history_list.bind(minimum_height=self.history_list.setter('height'))
         self.history_scroll.add_widget(self.history_list)
         self.root.add_widget(self.history_scroll)
 
-        # 5. REGIONEN & STATUS
+        # 5. REGIONEN
         region_grid = GridLayout(cols=3, size_hint_y=None, height=dp(40), spacing=dp(5))
-        for r_name in SPENDEN_PROJEKTE.keys():
+        for r_name in ["BAYERN", "AUGSBURG", "GLOBAL"]:
             btn = ToggleButton(text=r_name, group="region", state="down" if r_name == "BAYERN" else "normal")
             btn.bind(on_release=lambda x, n=r_name: self.set_region(n))
             region_grid.add_widget(btn)
@@ -105,16 +129,22 @@ class QuantumLottoKarmaApp(App):
 
         return self.root
 
+    def fetch_remote_projects(self):
+        try:
+            url = "https://raw.githubusercontent.com/senci33-wq/Vortex-Lotto-Global-Karma-2026/main/projekte.json"
+            r = requests.get(url, timeout=5)
+            if r.status_code == 200:
+                self.karma_manager.update_daten(r.json())
+        except:
+            pass
+
     def set_lotto(self, name): self.current_lotto = name
     def set_region(self, name): self.current_region = name
 
     def open_karma(self, instance):
-        projekte = SPENDEN_PROJEKTE.get(self.current_region)
-        neues = random.choice(projekte)
-        if len(projekte) > 1:
-            while neues == self.letztes_projekt: neues = random.choice(projekte)
-        self.letztes_projekt = neues
-        webbrowser.open(neues[1])
+        projekt = self.karma_manager.ziehe_projekt(self.current_region)
+        webbrowser.open(projekt[1])
+        self.status_label.text = f"Karma: {projekt[0]}"
 
     def start_draw(self, *args):
         if not self.is_drawing:
@@ -127,7 +157,6 @@ class QuantumLottoKarmaApp(App):
         config = LOTTERIEN[self.current_lotto]
         gezogene = []
         
-        # Hauptzahlen
         for i in range(config["kugeln"]):
             pool = list(range(1, config["max"] + 1))
             while True:
@@ -138,14 +167,12 @@ class QuantumLottoKarmaApp(App):
             Clock.schedule_once(lambda dt, idx=i, v=val: self.update_ball(idx, v, False))
             time.sleep(0.3)
         
-        # Zusatzzahl (falls vorhanden)
         zusatz_val = None
         if config["zusatz"]:
             z_pool = list(range(1, config["z_max"] + 1))
             zusatz_val = self.get_q(z_pool)
             Clock.schedule_once(lambda dt, v=zusatz_val: self.update_ball(6, v, True))
         
-        # In Historie speichern
         res_str = f"{self.current_lotto}: " + ", ".join(map(str, sorted(gezogene)))
         if zusatz_val: res_str += f" | {config['zusatz']}: {zusatz_val}"
         Clock.schedule_once(lambda dt: self.add_to_history(res_str))
@@ -158,8 +185,8 @@ class QuantumLottoKarmaApp(App):
         self.ball_labels[idx].color = CLR_GOLD if is_zusatz else CLR_ACCENT
 
     def add_to_history(self, text):
-        lbl = Label(text=text, font_size=sp(11), size_hint_y=None, height=dp(20), color=(0.8, 0.8, 0.8, 1))
-        self.history_list.add_widget(lbl, index=len(self.history_list.children))
+        lbl = Label(text=text, font_size=sp(11), size_hint_y=None, height=dp(25), color=(0.7, 0.7, 0.7, 1))
+        self.history_list.add_widget(lbl, index=0)
 
     def get_q(self, pool):
         try:
