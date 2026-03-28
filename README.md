@@ -23,3 +23,4 @@ Besuche unsere [Projekt-Webseite](https://senci33-wq.github.io/Vortex-Lotto-Glob
 
 ---
 *"Es gibt nichts Gutes, außer man tut es." – Erich Kästner*
+![Besucher](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fsenci33-wq%2FVortex-Lotto-Global-Karma-2026&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Besucher&edge_flat=false)
