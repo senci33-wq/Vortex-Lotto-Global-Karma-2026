@@ -20,8 +20,20 @@ Dieses Projekt ist Open Source. Warum? Weil Vertrauen durch Transparenz entsteht
 ## 🚀 Status
 Die App befindet sich aktuell in der **Alpha-Phase**. 
 Besuche unsere [Projekt-Webseite](https://senci33-wq.github.io/Vortex-Lotto-Global-Karma-2026/), um mehr zu erfahren oder die aktuelle Version herunterzuladen.
+
+Sen Ju
+10:34 (vor 0 Minuten)
+an mich
+
+---
+
 ## 📲 Download & Installation
-Klicke auf den Button unten, um die aktuellste Version der App direkt herunterzuladen:
+
+Die aktuellste Version der App (mit dem neuen Logo und Sicherheits-Features) findest du hier:
+
+[![Download APK](https://img.shields.io/badge/Download-APK-green?style=for-the-badge&logo=android)](https://github.com/senci33-wq/Vortex-Lotto-Global-Karma-2026/releases/latest)
+
+> **Installation:** Lade die `.apk` auf dein Android-Handy. Du musst eventuell "Installation aus unbekannten Quellen" in den Einstellungen erlauben, da die App dezentral (nicht über den Play Store) verteilt wird.
 
 [![Download APK](https://img.shields.io/badge/Download-APK-green?style=for-the-badge&logo=android)](https://github.com/senci33-wq/Vortex-Lotto-Global-Karma-2026/releases/latest)
 
