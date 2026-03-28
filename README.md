@@ -27,6 +27,8 @@ an mich
 
 ---
 
+---
+
 ## 📲 Download & Installation
 
 Die aktuellste Version der App (mit dem neuen Logo und Sicherheits-Features) findest du hier:
@@ -35,7 +37,19 @@ Die aktuellste Version der App (mit dem neuen Logo und Sicherheits-Features) fin
 
 > **Installation:** Lade die `.apk` auf dein Android-Handy. Du musst eventuell "Installation aus unbekannten Quellen" in den Einstellungen erlauben, da die App dezentral (nicht über den Play Store) verteilt wird.
 
-[![Download APK](https://img.shields.io/badge/Download-APK-green?style=for-the-badge&logo=android)](https://github.com/senci33-wq/Vortex-Lotto-Global-Karma-2026/releases/latest)
+---
+
+## ⚖️ Haftungsausschluss (Disclaimer)
+
+**Wichtiger Hinweis zur Datenhoheit:**
+Diese App wurde entwickelt, um dem Nutzer die **totale Kontrolle** über seine Daten zu geben. Das bedeutet jedoch auch volle Eigenverantwortung:
+
+1. **Kein Passwort-Reset:** Da die Verschlüsselung lokal erfolgt, gibt es keine Hintertür. Verlierst du dein Passwort, sind die Daten weg.
+2. **Lokale Speicherung:** Deine Daten verlassen niemals dein Gerät (außer du nutzt explizit die Schwarm-Warnfunktion).
+3. **Nutzung auf eigene Gefahr:** Die Software wird "wie besehen" bereitgestellt. Der Entwickler übernimmt keine Haftung für Datenverlust oder Fehlbedienung durch den Nutzer.
+
+---
+
 
 > **Hinweis:** Da die App dezentral ist und nicht aus dem Play Store kommt, musst du in den Android-Einstellungen "Installation aus unbekannten Quellen" erlauben.
 
