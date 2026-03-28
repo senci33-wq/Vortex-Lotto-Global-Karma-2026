@@ -18,6 +18,17 @@ android.archs = arm64-v8a
 
 # Keine Bilder = Kein Absturz
 # icon.filename = %(source.dir)s/icon.png <-- Bleibt aus!
+17 # (str) Title of your application
+18 title = ZellSchutz
+19
+20 # (str) Package name
+21 package.name = zellschutzapp
+22
+23 # (str) Package domain (needed for android packaging)
+24 package.domain = org.vortex
+25
+26 # (str) Icon of the application
+27 icon.filename = %(source.dir)s/icon.png
 
 [buildozer]
 log_level = 2
