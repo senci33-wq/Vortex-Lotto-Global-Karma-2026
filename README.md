@@ -44,7 +44,7 @@ Die aktuellste Version der App (mit dem neuen Logo und Sicherheits-Features) fin
 **Wichtiger Hinweis zur Datenhoheit:**
 Diese App wurde entwickelt, um dem Nutzer die **totale Kontrolle** über seine Daten zu geben. Das bedeutet jedoch auch volle Eigenverantwortung:
 
-1. **Kein Passwort-Reset:** Da die Verschlüsselung lokal erfolgt, gibt es keine Hintertür. Verlierst du dein Passwort, sind die Daten weg.
+1. **Kein Passwort-Reset:** Da die Verschlüsselung lokal erfolgt, gibt es keine Hintertür.
 2. **Lokale Speicherung:** Deine Daten verlassen niemals dein Gerät.
 3. **Nutzung auf eigene Gefahr:** Die Software wird "wie besehen" bereitgestellt. Der Entwickler übernimmt keine Haftung für Datenverlust oder Fehlbedienung durch den Nutzer.
 
