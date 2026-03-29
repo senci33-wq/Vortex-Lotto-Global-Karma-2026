@@ -25,7 +25,7 @@ CLR_RED = get_color_from_hex("#f43f5e")
 # --- LOTTERIE KONFIGURATION ---
 LOTTERIEN = {
     "6aus49": {"kugeln": 6, "max": 49, "zusatz": "SZ", "z_max": 9},
-    "Eurojackpot": {"kugeln": 5, "max": 50, "zusatz": "EZ", "z_max": 12},
+    "Eurojackpot": {"kugeln": 5, "max": 50, "zusatz": "EZ", "z_kugeln": 2, "z_max": 12},
     "Glücksspirale": {"kugeln": 7, "max": 9, "zusatz": None},
     "Bayern-Lotto": {"kugeln": 6, "max": 49, "zusatz": "BZ", "z_max": 10}
 }
