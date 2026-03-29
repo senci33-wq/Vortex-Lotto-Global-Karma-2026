@@ -27,7 +27,7 @@ LOTTERIEN = {
     "6aus49": {"kugeln": 6, "max": 49, "zusatz": "SZ", "z_kugeln": 1, "z_max": 9},
     "Eurojackpot": {"kugeln": 5, "max": 50, "zusatz": "EZ", "z_kugeln": 2, "z_max": 12},
     "Glücksspirale": {"kugeln": 7, "max": 9, "zusatz": None, "z_kugeln": 0, "z_max": 0},
-    "🗽Freiheit": {"kugeln": 7, "max": 38, "zusatz": None, "z_kugeln": 0, "z_max": 0}
+    "Freiheit": {"kugeln": 7, "max": 38, "zusatz": None, "z_kugeln": 0, "z_max": 0}
 }
 
 class KarmaManager:
@@ -69,12 +69,24 @@ class QuantumLottoKarmaApp(App):
         # 1. HEADER
         self.root.add_widget(Label(text="VORTEX LOTTO v0.7", font_size=sp(22), bold=True, color=CLR_ACCENT, size_hint_y=None, height=dp(40)))
 
-        # 2. LOTTERIE AUSWAHL
-        lotto_grid = GridLayout(cols=4, size_hint_y=None, height=dp(45), spacing=dp(5))
+        #         # 2. LOTTERIE AUSWAHL
+        lotto_grid = GridLayout(cols=4, size_hint_y=None, height=dp(50), spacing=dp(5))
         for l_name in LOTTERIEN.keys():
-            btn = ToggleButton(text=l_name, group="lotto", state="down" if l_name == "6aus49" else "normal", font_size=sp(10))
+            btn = ToggleButton(
+                text=l_name, 
+                group="lotto", 
+                state="down" if l_name == "6aus49" else "normal",
+                font_size=sp(11),
+                background_normal='', # Entfernt den grauen Standard-Hintergrund
+                background_down='',   # Ermöglicht eigene Farben
+            )
+            # Farbe wenn ausgewählt (Türkis) vs. wenn nicht ausgewählt (Dunkelblau)
+            btn.background_color = CL_ACCENT if btn.state == 'down' else CLR_CARD
+            
+            # Logik damit der Button beim Klicken die Farbe wechselt
             btn.bind(on_release=lambda x, n=l_name: self.set_lotto(n))
             lotto_grid.add_widget(btn)
+
         self.root.add_widget(lotto_grid)
 
         # 3. KUGEL-DISPLAY
