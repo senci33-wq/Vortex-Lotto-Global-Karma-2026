@@ -66,7 +66,7 @@ class QuantumLottoKarmaApp(App):
         self.root = BoxLayout(orientation='vertical', padding=dp(15), spacing=dp(10))
         
         # Titel
-        self.root.add_widget(Label(text="VORTEX LOTTO v1.2", font_size=sp(22), bold=True, 
+        self.root.add_widget(Label(text="VORTEX LOTTO 1.1.3", font_size=sp(22), bold=True, 
                                    color=CLR_ACCENT, size_hint_y=None, height=dp(40)))
 
         # 1. LOTTERIE AUSWAHL
