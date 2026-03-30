@@ -85,34 +85,28 @@ class QuantumLottoKarmaApp(App):
 
         threading.Thread(target=self.fetch_remote_projects, daemon=True).start()
 
-        self.root = BoxLayout(orientation='vertical', padding=dp(15), spacing=dp(10))
+       self.root = BoxLayout(orientation='vertical', padding=dp(15), spacing=dp(10))
 
-        # HEADER
+        # 1. HEADER (v0.7)
         self.root.add_widget(Label(text="VORTEX LOTTO v0.7", font_size=sp(22), bold=True, color=CLR_ACCENT, size_hint_y=None, height=dp(40)))
 
-        # LOTTO AUSWAHL
+        # 2. LOTTERIE AUSWAHL (FIX: EINRÜCKUNG PRÜFEN)
+        # cols=4 ist okay, wenn es immer diese 4 Lotterien bleiben.
         lotto_grid = GridLayout(cols=4, size_hint_y=None, height=dp(50), spacing=dp(5))
         for l_name in LOTTERIEN.keys():
-            btn = ToggleButton(
-                text=l_name,
-                group="lotto",
-                state="down" if l_name == "6aus49" else "normal",
-                font_size=sp(11),
-                background_normal='',
-                background_down=''
-            )
+            # WICHTIG: Dieser gesamte Block muss exakt gleich weit eingerückt sein!
+            btn = ToggleButton(text=l_name, group="lotto", state="down" if l_name == "6aus49" else "normal", font_size=sp(10))
             btn.bind(on_release=lambda x, n=l_name: self.set_lotto(n))
             lotto_grid.add_widget(btn)
         self.root.add_widget(lotto_grid)
 
-        # KUGELN
+        # 3. KUGEL-DISPLAY
         self.ball_row = BoxLayout(size_hint_y=None, height=dp(60), spacing=dp(5))
         self.ball_labels = [Label(text=" ", font_size=sp(26), bold=True) for _ in range(7)]
-        for lbl in self.ball_labels:
-            self.ball_row.add_widget(lbl)
+        for lbl in self.ball_labels: self.ball_row.add_widget(lbl)
         self.root.add_widget(self.ball_row)
 
-        # HISTORIE
+        # 4. HISTORIE (v0.7)
         self.root.add_widget(Label(text="LETZTE ZIEHUNGEN", font_size=sp(11), color=(0.5, 0.5, 0.5, 1), size_hint_y=None, height=dp(15)))
         self.history_scroll = ScrollView(size_hint_y=None, height=dp(100))
         self.history_list = BoxLayout(orientation='vertical', size_hint_y=None, spacing=dp(2))
@@ -120,26 +114,27 @@ class QuantumLottoKarmaApp(App):
         self.history_scroll.add_widget(self.history_list)
         self.root.add_widget(self.history_scroll)
 
-        # REGIONEN
-        region_grid = GridLayout(cols=3, size_hint_y=None, height=dp(40), spacing=dp(5))
-        self.region_buttons = {}
+        # 5. REGIONEN & STATUS (FIX: DYNAMISCHE SPALTEN & SCROLLVIEW)
+        # Wir stecken das GridLayout in ein ScrollView, falls es viele Regionen sind.
+        self.region_scroll = ScrollView(size_hint_y=None, height=dp(50))
+        
+        # FIX: Wir entfernen 'cols=3' und nutzen 'cols=None', 
+        # damit die Buttons ihre Breite selbst bestimmen.
+        # Alternativ: Wir lassen cols=3, aber müssen dann die Höhe anpassen.
+        # Beste Lösung für Handy: Immer 3 Spalten, aber das Layout wächst nach unten.
+        self.region_grid = GridLayout(cols=3, size_hint_y=None, spacing=dp(5))
+        self.region_grid.bind(minimum_height=self.region_grid.setter('height'))
+        
+        self.region_scroll.add_widget(self.region_grid)
+        self.root.add_widget(self.region_scroll)
 
-        for r_name in ["BAYERN", "AUGSBURG", "GLOBAL", "BOSNIEN", "DEUTSCHLAND"]:
-            btn = ToggleButton(
-                text=r_name,
-                group="region",
-                state="down" if r_name == self.current_region else "normal"
-            )
-            btn.bind(on_release=lambda x, n=r_name: self.set_region(n))
-            region_grid.add_widget(btn)
-            self.region_buttons[r_name] = btn
-
-        self.root.add_widget(region_grid)
-
-        self.status_label = Label(text=f"Region erkannt: {self.current_region}", color=CLR_ACCENT, size_hint_y=None, height=dp(30))
+        # Diese Funktion befüllt das Regionen-Grid, sobald die JSON geladen ist
+        # (Wird weiter unten in self.fetch_remote_projects aufgerufen)
+        
+        self.status_label = Label(text="Quanten-System bereit.", color=CLR_ACCENT, size_hint_y=None, height=dp(30))
         self.root.add_widget(self.status_label)
 
-        # BUTTONS
+        # 6. ACTION BUTTONS
         btn_row = BoxLayout(size_hint_y=None, height=dp(70), spacing=dp(10))
         self.start_btn = Button(text="ZIEHUNG", background_color=get_color_from_hex("#0e7490"), bold=True)
         self.start_btn.bind(on_release=self.start_draw)
@@ -150,7 +145,6 @@ class QuantumLottoKarmaApp(App):
         self.root.add_widget(btn_row)
 
         return self.root
-
     # --- AUTOMATIK DEAKTIVIEREN BEI MANUELLER AUSWAHL ---
     def set_region(self, name):
         self.current_region = name
