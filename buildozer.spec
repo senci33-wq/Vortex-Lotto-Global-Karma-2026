@@ -15,7 +15,7 @@ source.dir = .
 source.include_exts = py,kv,json,png
 
 # (str) Application version
-version = 0.9
+version = 1.0.1
 
 # (list) Application requirements
 # WICHTIG: certifi ist nötig für die Quanten-Abfrage (SSL)
