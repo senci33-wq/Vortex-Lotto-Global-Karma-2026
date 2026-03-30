@@ -15,7 +15,7 @@ source.dir = .
 source.include_exts = py,kv,json,png
 
 # (str) Versionsnummer (immer erhöhen für Updates!)
-version = 0.9
+version = 1.0.
 
 # (list) Wichtige Pakete für Kivy + Internet + SSL
 requirements = python3,kivy,requests,certifi,urllib3,idna,charset-normalizer
