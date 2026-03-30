@@ -11,15 +11,15 @@
     "id": "sanfilippo_initiative",
     "name": "Sanfilippo Initiative",
     "region": "Deutschland / Global",
-    "description": "Unterstützung der Forschung und Hilfe für Kinder, die an der seltenen Stoffwechselkrankheit MPS III leiden.",
+    "description": "Unterstützung der Forschung und Hilfe für Kinder mit MPS III.",
     "link": "https://sanfilippo-initiative.de/",
     "category": "Medizinische Forschung"
   },
   {
     "id": "global_water",
     "name": "Charity: Water",
-    "region": "Global (Fokus: Afrika/Asien)",
-    "description": "Sauberes Trinkwasser für Regionen ohne Infrastruktur. Transparent und effektiv.",
+    "region": "Global",
+    "description": "Sauberes Trinkwasser für Regionen ohne Infrastruktur.",
     "link": "https://www.charitywater.org/",
     "category": "Global"
   },
@@ -27,10 +27,430 @@
     "id": "vortex_feedback",
     "name": "Vortex Karma Vorschlag",
     "region": "Weltweit",
-    "description": "Du kennst ein Projekt, das Hilfe braucht? Schlag es uns vor!",
+    "description": "Community-Projektvorschläge für globale Unterstützung.",
     "link": "https://senci33-wq.github.io/Vortex-Lotto-Global-Karma-2026/",
     "category": "Community"
+  },
+
+  {
+    "id": "climeworks",
+    "name": "Climeworks",
+    "region": "Global",
+    "description": "Direct Air Capture zur CO₂-Entnahme aus der Atmosphäre.",
+    "link": "https://climeworks.com/",
+    "category": "Decarbonisierung"
+  },
+  {
+    "id": "carbon180",
+    "name": "Carbon180",
+    "region": "USA / Global",
+    "description": "Politik- und Forschungsorganisation für CO₂-Entnahme.",
+    "link": "https://carbon180.org/",
+    "category": "Decarbonisierung"
+  },
+  {
+    "id": "project_drawdown",
+    "name": "Project Drawdown",
+    "region": "Global",
+    "description": "Wissenschaftlich fundierte Lösungen zur Emissionsreduktion.",
+    "link": "https://drawdown.org/",
+    "category": "Decarbonisierung"
+  },
+  {
+    "id": "eden_reforestation",
+    "name": "Eden Reforestation Projects",
+    "region": "Global",
+    "description": "Großskalige Wiederaufforstung und lokale Beschäftigung.",
+    "link": "https://edenprojects.org/",
+    "category": "Decarbonisierung"
+  },
+  {
+    "id": "trees_future",
+    "name": "Trees for the Future",
+    "region": "Afrika",
+    "description": "Aufforstung und regenerative Landwirtschaft.",
+    "link": "https://trees.org/",
+    "category": "Decarbonisierung"
+  },
+  {
+    "id": "atmosfair",
+    "name": "Atmosfair",
+    "region": "Deutschland / Global",
+    "description": "Transparente CO₂-Kompensation und Klimaschutz.",
+    "link": "https://www.atmosfair.de/",
+    "category": "Decarbonisierung"
+  },
+  {
+    "id": "carbonfund",
+    "name": "CarbonFund",
+    "region": "Global",
+    "description": "CO₂-Kompensation und Klimaschutzprojekte.",
+    "link": "https://carbonfund.org/",
+    "category": "Decarbonisierung"
+  },
+  {
+    "id": "protect_our_winters",
+    "name": "Protect Our Winters",
+    "region": "Global",
+    "description": "Klimaschutzbewegung aus dem Outdoor-Sport.",
+    "link": "https://protectourwinters.org/",
+    "category": "Decarbonisierung"
+  },
+  {
+    "id": "rainforest_trust",
+    "name": "Rainforest Trust",
+    "region": "Global",
+    "description": "Schutz von Regenwäldern und Biodiversität.",
+    "link": "https://www.rainforesttrust.org/",
+    "category": "Umwelt"
+  },
+  {
+    "id": "ocean_cleanup",
+    "name": "The Ocean Cleanup",
+    "region": "Global",
+    "description": "Entfernung von Plastik aus Ozeanen und Flüssen.",
+    "link": "https://theoceancleanup.com/",
+    "category": "Umwelt"
+  },
+  {
+    "id": "rewilding_europe",
+    "name": "Rewilding Europe",
+    "region": "Europa",
+    "description": "Wiederherstellung natürlicher Ökosysteme.",
+    "link": "https://rewildingeurope.com/",
+    "category": "Umwelt"
+  },
+  {
+    "id": "350_org",
+    "name": "350.org",
+    "region": "Global",
+    "description": "Internationale Klimaschutzbewegung.",
+    "link": "https://350.org/",
+    "category": "Decarbonisierung"
+  },
+  {
+    "id": "clean_air_task_force",
+    "name": "Clean Air Task Force",
+    "region": "Global",
+    "description": "Technologiegetriebene Lösungen zur Emissionsreduktion.",
+    "link": "https://www.catf.us/",
+    "category": "Decarbonisierung"
+  },
+  {
+    "id": "global_cooling_prize",
+    "name": "Global Cooling Prize",
+    "region": "Global",
+    "description": "Innovation für klimafreundliche Kühlung.",
+    "link": "https://globalcoolingprize.org/",
+    "category": "Decarbonisierung"
+  },
+  {
+    "id": "solar_sister",
+    "name": "Solar Sister",
+    "region": "Afrika",
+    "description": "Frauen fördern saubere Energie in ländlichen Regionen.",
+    "link": "https://solarsister.org/",
+    "category": "Decarbonisierung"
+  },
+  {
+    "id": "energy_4_impact",
+    "name": "Energy 4 Impact",
+    "region": "Afrika",
+    "description": "Zugang zu sauberer Energie für Entwicklungsländer.",
+    "link": "https://energy4impact.org/",
+    "category": "Decarbonisierung"
+  },
+
+  {
+    "id": "dkms",
+    "name": "DKMS",
+    "region": "Global",
+    "description": "Stammzellspenden gegen Blutkrebs.",
+    "link": "https://www.dkms.de/",
+    "category": "Medizinische Forschung"
+  },
+  {
+    "id": "st_jude",
+    "name": "St. Jude Children's Research Hospital",
+    "region": "USA / Global",
+    "description": "Forschung und Behandlung schwerer Kinderkrankheiten.",
+    "link": "https://www.stjude.org/",
+    "category": "Medizinische Forschung"
+  },
+  {
+    "id": "michael_j_fox",
+    "name": "Michael J. Fox Foundation",
+    "region": "Global",
+    "description": "Forschung zu Parkinson.",
+    "link": "https://www.michaeljfox.org/",
+    "category": "Medizinische Forschung"
+  },
+  {
+    "id": "cancer_research_institute",
+    "name": "Cancer Research Institute",
+    "region": "Global",
+    "description": "Immuntherapie-Forschung gegen Krebs.",
+    "link": "https://www.cancerresearch.org/",
+    "category": "Medizinische Forschung"
+  },
+  {
+    "id": "global_genes",
+    "name": "Global Genes",
+    "region": "Global",
+    "description": "Unterstützung für Menschen mit seltenen Krankheiten.",
+    "link": "https://globalgenes.org/",
+    "category": "Medizinische Forschung"
+  },
+  {
+    "id": "cure_sma",
+    "name": "Cure SMA",
+    "region": "Global",
+    "description": "Forschung und Unterstützung für SMA.",
+    "link": "https://www.curesma.org/",
+    "category": "Medizinische Forschung"
+  },
+  {
+    "id": "alzheimer_research_uk",
+    "name": "Alzheimer's Research UK",
+    "region": "UK",
+    "description": "Forschung zu Alzheimer und Demenz.",
+    "link": "https://www.alzheimersresearchuk.org/",
+    "category": "Medizinische Forschung"
+  },
+  {
+    "id": "who_foundation",
+    "name": "WHO Foundation",
+    "region": "Global",
+    "description": "Unterstützung globaler Gesundheitsprogramme.",
+    "link": "https://who.foundation/",
+    "category": "Medizinische Forschung"
+  },
+
+  {
+    "id": "unicef",
+    "name": "UNICEF",
+    "region": "Global",
+    "description": "Kinderrechte, Bildung, Gesundheit weltweit.",
+    "link": "https://www.unicef.org/",
+    "category": "Humanitär"
+  },
+  {
+    "id": "unhcr",
+    "name": "UNHCR",
+    "region": "Global",
+    "description": "Schutz für Geflüchtete weltweit.",
+    "link": "https://www.unhcr.org/",
+    "category": "Humanitär"
+  },
+  {
+    "id": "wfp",
+    "name": "World Food Programme",
+    "region": "Global",
+    "description": "Ernährungssicherheit und Hungerbekämpfung.",
+    "link": "https://www.wfp.org/",
+    "category": "Humanitär"
+  },
+  {
+    "id": "irc",
+    "name": "International Rescue Committee",
+    "region": "Global",
+    "description": "Katastrophenhilfe und Wiederaufbau.",
+    "link": "https://www.rescue.org/",
+    "category": "Humanitär"
+  },
+  {
+    "id": "save_the_children",
+    "name": "Save the Children",
+    "region": "Global",
+    "description": "Bildung und Schutz für Kinder.",
+    "link": "https://www.savethechildren.net/",
+    "category": "Humanitär"
+  },
+  {
+    "id": "care",
+    "name": "CARE",
+    "region": "Global",
+    "description": "Armutsbekämpfung und humanitäre Hilfe.",
+    "link": "https://www.care.org/",
+    "category": "Humanitär"
+  },
+  {
+    "id": "oxfam",
+    "name": "Oxfam",
+    "region": "Global",
+    "description": "Armutsbekämpfung und soziale Gerechtigkeit.",
+    "link": "https://www.oxfam.org/",
+    "category": "Humanitär"
+  },
+  {
+    "id": "habitat_humanity",
+    "name": "Habitat for Humanity",
+    "region": "Global",
+    "description": "Bau von Häusern für Bedürftige.",
+    "link": "https://www.habitat.org/",
+    "category": "Humanitär"
+  },
+  {
+    "id": "wateraid",
+    "name": "WaterAid",
+    "region": "Global",
+    "description": "Sauberes Wasser und Hygiene.",
+    "link": "https://www.wateraid.org/",
+    "category": "Humanitär"
+  },
+  {
+    "id": "mercy_corps",
+    "name": "Mercy Corps",
+    "region": "Global",
+    "description": "Katastrophenhilfe und Entwicklungsprogramme.",
+    "link": "https://www.mercycorps.org/",
+    "category": "Humanitär"
+  },
+
+  {
+    "id": "brot_fuer_die_welt",
+    "name": "Brot für die Welt",
+    "region": "Deutschland / Global",
+    "description": "Entwicklungszusammenarbeit und Armutsbekämpfung.",
+    "link": "https://www.brot-fuer-die-welt.de/",
+    "category": "Lokal"
+  },
+  {
+    "id": "nabu",
+    "name": "NABU",
+    "region": "Deutschland",
+    "description": "Naturschutz und Biodiversität.",
+    "link": "https://www.nabu.de/",
+    "category": "Umwelt"
+  },
+  {
+    "id": "bund",
+    "name": "BUND",
+    "region": "Deutschland",
+    "description": "Umweltschutz und Nachhaltigkeit.",
+    "link": "https://www.bund.net/",
+    "category": "Umwelt"
+  },
+  {
+    "id": "caritas",
+    "name": "Caritas International",
+    "region": "Global",
+    "description": "Humanitäre Hilfe und soziale Unterstützung.",
+    "link": "https://www.caritas-international.de/",
+    "category": "Humanitär"
+  },
+  {
+    "id": "johanniter",
+    "name": "Johanniter Auslandshilfe",
+    "region": "Global",
+    "description": "Medizinische und humanitäre Hilfe.",
+    "link": "https://www.johanniter.de/",
+    "category": "Humanitär"
+  },
+  {
+    "id": "tafel_deutschland",
+    "name": "Tafel Deutschland",
+    "region": "Deutschland",
+    "description": "Lebensmittelrettung und soziale Unterstützung.",
+    "link": "https://www.tafel.de/",
+    "category": "Lokal"
+  },
+  {
+    "id": "plant_for_the_planet",
+    "name": "Plant-for-the-Planet",
+    "region": "Global",
+    "description": "Aufforstung und Klimabildung.",
+    "link": "https://www.plant-for-the-planet.org/",
+    "category": "Decarbonisierung"
+  },
+  {
+    "id": "viva_con_agua",
+    "name": "Viva con Agua",
+    "region": "Global",
+    "description": "Wasser- und Sanitärprojekte.",
+    "link": "https://www.vivaconagua.org/",
+    "category": "Humanitär"
+  },
+  {
+    "id": "aktion_deutschland_hilft",
+    "name": "Aktion Deutschland Hilft",
+    "region": "Global",
+    "description": "Bündnis deutscher Hilfsorganisationen.",
+    "link": "https://www.aktion-deutschland-hilft.de/",
+    "category": "Humanitär"
+  },
+
+  {
+    "id": "wikimedia",
+    "name": "Wikimedia Foundation",
+    "region": "Global",
+    "description": "Freies Wissen weltweit.",
+    "link": "https://wikimediafoundation.org/",
+    "category": "Community"
+  },
+  {
+    "id": "khan_academy",
+    "name": "Khan Academy",
+    "region": "Global",
+    "description": "Kostenlose Bildung für alle.",
+    "link": "https://www.khanacademy.org/",
+    "category": "Bildung"
+  },
+  {
+    "id": "mozilla",
+    "name": "Mozilla Foundation",
+    "region": "Global",
+    "description": "Offenes Internet und digitale Rechte.",
+    "link": "https://foundation.mozilla.org/",
+    "category": "Community"
+  },
+  {
+    "id": "open_knowledge",
+    "name": "Open Knowledge Foundation",
+    "region": "Global",
+    "description": "Offene Daten und Transparenz.",
+    "link": "https://okfn.org/",
+    "category": "Community"
+  },
+  {
+    "id": "code_org",
+    "name": "Code.org",
+    "region": "Global",
+    "description": "Programmieren für Kinder und Jugendliche.",
+    "link": "https://code.org/",
+    "category": "Bildung"
+  },
+
+  {
+    "id": "pomozi_ba",
+    "name": "Pomozi.ba",
+    "region": "Bosnien und Herzegowina",
+    "description": "Eine der größten humanitären Organisationen des Landes. Unterstützung für Bedürftige, medizinische Hilfe und soziale Programme.",
+    "link": "https://www.pomozi.ba/",
+    "category": "Humanitär"
+  },
+  {
+    "id": "revolucija_bih",
+    "name": "Revolucija",
+    "region": "Bosnien und Herzegowina",
+    "description": "Junge Hilfsorganisation, die schnelle Unterstützung für Bedürftige organisiert.",
+    "link": "https://revolucija.ba/",
+    "category": "Humanitär"
+  },
+  {
+    "id": "mozaik_fondacija",
+    "name": "Mozaik Foundation",
+    "region": "Bosnien und Herzegowina",
+    "description": "Unterstützt soziale Innovation, Jugendprojekte und nachhaltige Entwicklung.",
+    "link": "https://mozaik.ba/",
+    "category": "Community"
+  },
+  {
+    "id": "merhamet_bih",
+    "name": "Merhamet",
+    "region": "Bosnien und Herzegowina",
+    "description": "Traditionsreiche humanitäre Organisation mit Fokus auf Bedürftige und Notfallhilfe.",
+    "link": "https://merhamet.ba/",
+    "category": "Humanitär"
   }
 ]
-
-
