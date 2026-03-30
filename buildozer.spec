@@ -16,7 +16,7 @@ source.dir = .
 source.include_exts = py,kv,json,png
 
 # (str) Application version
-version = 0.9
+version = 0.9.1
 
 # (list) Application requirements
 # WICHTIG: certifi für SSL-Verschlüsselung der Quanten-API!
