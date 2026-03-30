@@ -87,8 +87,8 @@ class QuantumLottoKarmaApp(App):
 
        self.root = BoxLayout(orientation='vertical', padding=dp(15), spacing=dp(10))
 
-        # 1. HEADER (v0.7)
-        self.root.add_widget(Label(text="VORTEX LOTTO v0.7", font_size=sp(22), bold=True, color=CLR_ACCENT, size_hint_y=None, height=dp(40)))
+        # 1. HEADER (1.0.1)
+        self.root.add_widget(Label(text="VORTEX LOTTO 1.0.1", font_size=sp(22), bold=True, color=CLR_ACCENT, size_hint_y=None, height=dp(40)))
 
         # 2. LOTTERIE AUSWAHL (FIX: EINRÜCKUNG PRÜFEN)
         # cols=4 ist okay, wenn es immer diese 4 Lotterien bleiben.
@@ -161,48 +161,35 @@ class QuantumLottoKarmaApp(App):
 
         self.status_label.text = f"Automatische Region aktiviert: {self.current_region}"
 
-    def fetch_remote_projects(self):
+      def fetch_remote_projects(self):
         try:
             url = "https://raw.githubusercontent.com/senci33-wq/Vortex-Lotto-Global-Karma-2026/main/projekte.json"
             r = requests.get(url, timeout=5)
             if r.status_code == 200:
                 self.karma_manager.update_daten(r.json())
+                # UI-Update muss im Kivy-Thread laufen!
+                Clock.schedule_once(lambda dt: self.populate_region_buttons(r.json().keys()))
         except:
             pass
 
-    def set_lotto(self, name):
-        self.current_lotto = name
-        for lbl in self.ball_labels:
-            lbl.text = " "
+    def populate_region_buttons(self, regionen_namen):
+        # Wir räumen das alte Grid auf
+        self.region_grid.clear_widgets()
+        first_region = True
+        for r_name in sorted(regionen_namen):
+            # Wir erstellen für jede Region einen ToggleButton
+            btn = ToggleButton(
+                text=r_name, 
+                group="region", 
+                state="down" if first_region else "normal", 
+                font_size=sp(10),
+                size_hint_y=None,
+                height=dp(35) # Feste Höhe für GridLayout
+            )
+            btn.bind(on_release=lambda x, n=r_name: self.set_region(n))
+            self.region_grid.add_widget(btn)
+            first_region = False
 
-    def open_karma(self, instance):
-        p_name, p_url = self.karma_manager.ziehe_projekt(self.current_region)
-        webbrowser.open(p_url)
-        self.status_label.text = f"Karma: {p_name}"
-
-    def start_draw(self, *args):
-        if not self.is_drawing:
-            self.start_btn.disabled = True
-            for lbl in self.ball_labels:
-                lbl.text = "·"
-                lbl.color = (0.4, 0.4, 0.4, 1)
-            threading.Thread(target=self.run_logic).start()
-
-    def run_logic(self):
-        self.is_drawing = True
-        config = LOTTERIEN[self.current_lotto]
-        gezogene_haupt = []
-        gezogene_zusatz = []
-
-        # Hauptzahlen
-        for i in range(config["kugeln"]):
-            pool = list(range(1, config["max"] + 1))
-            while True:
-                val = self.get_q(pool)
-                if val not in gezogene_haupt:
-                    gezogene_haupt.append(val)
-                    break
-            Clock.schedule_once(lambda dt, idx=i, v=val: self.update_ball(idx, v, False))
             time.sleep(0.3)
 
         # Zusatzzahlen
