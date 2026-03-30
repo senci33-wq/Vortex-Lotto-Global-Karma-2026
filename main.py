@@ -11,7 +11,7 @@ from kivy.clock import Clock
 from kivy.utils import get_color_from_hex
 import random, secrets, requests, threading, time, webbrowser, os
 
-# --- SSL FIX ---
+# --- SSL/HTTPS FIX ---
 import certifi
 os.environ['SSL_CERT_FILE'] = certifi.where()
 
@@ -41,7 +41,7 @@ class KarmaManager:
             if region in self.projekte_pool:
                 self.verfuegbare_stapel[region] = list(self.projekte_pool[region])
                 random.shuffle(self.verfuegbare_stapel[region])
-            else: return ("Global Karma Fund", "https://google.com")
+            else: return ("Global Karma", "https://google.com")
         return self.verfuegbare_stapel[region].pop()
 
 class QuantumLottoKarmaApp(App):
@@ -52,7 +52,7 @@ class QuantumLottoKarmaApp(App):
         self.karma_manager = KarmaManager()
 
         self.root = BoxLayout(orientation='vertical', padding=dp(15), spacing=dp(10))
-        self.root.add_widget(Label(text="VORTEX LOTTO v1.0", font_size=sp(22), bold=True, color=CLR_ACCENT, size_hint_y=None, height=dp(40)))
+        self.root.add_widget(Label(text="VORTEX LOTTO 1.1.1", font_size=sp(22), bold=True, color=CLR_ACCENT, size_hint_y=None, height=dp(40)))
 
         # 1. LOTTERIE AUSWAHL
         self.lotto_grid = GridLayout(cols=4, size_hint_y=None, height=dp(50), spacing=dp(5))
@@ -75,7 +75,7 @@ class QuantumLottoKarmaApp(App):
         self.history_scroll.add_widget(self.history_list)
         self.root.add_widget(self.history_scroll)
 
-        # 4. REGIONEN DISPLAY (DYNAMISCH)
+        # 4. DYNAMISCHES REGIONEN-GRID (Verhindert Überlappen)
         self.region_scroll = ScrollView(size_hint_y=None, height=dp(80))
         self.region_grid = GridLayout(cols=3, size_hint_y=None, spacing=dp(5))
         self.region_grid.bind(minimum_height=self.region_grid.setter('height'))
@@ -100,6 +100,7 @@ class QuantumLottoKarmaApp(App):
 
     def fetch_remote_projects(self):
         try:
+            # WICHTIG: Die URL zu deiner JSON
             r = requests.get("https://raw.githubusercontent.com/senci33-wq/Vortex-Lotto-Global-Karma-2026/main/projekte.json", timeout=5)
             if r.status_code == 200:
                 data = r.json()
@@ -154,10 +155,11 @@ class QuantumLottoKarmaApp(App):
                 if val not in gezogene_z:
                     gezogene_z.append(val)
                     break
+            # Zieht die Eurozahlen OHNE Lücke direkt nach den Hauptzahlen
             Clock.schedule_once(lambda dt, idx=h_count+j, v=val: self.update_ui_ball(idx, v, True))
             time.sleep(0.3)
 
-        # Restliche leeren
+        # Restliche leeren (für Lotterien mit weniger als 7 Kugeln)
         for k in range(h_count + z_count, 7):
             Clock.schedule_once(lambda dt, idx=k: self.update_ui_ball(idx, "", False))
 
@@ -187,4 +189,3 @@ class QuantumLottoKarmaApp(App):
 
 if __name__ == '__main__':
     QuantumLottoKarmaApp().run()
-
