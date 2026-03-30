@@ -1,38 +1,43 @@
 [app]
-# (str) Name der App auf dem Handy
+# (str) Title of your application
 title = Vortex Lotto
 
-# (str) Interner Paketname (keine Leerzeichen)
+# (str) Package name
 package.name = vortexlotto
 
-# (str) Deine Domain (identifiziert dich als Entwickler)
+# (str) Package domain (needed for android packaging)
 package.domain = org.senci33
 
-# (str) Verzeichnis in dem die main.py liegt
+# (str) Source code where the main.py lives
 source.dir = .
 
-# (list) Dateiendungen die mit in die App müssen (json wichtig für Projekte!)
+# (list) Source files to include (WICHTIG: json für die Projekte!)
 source.include_exts = py,kv,json,png
 
-# (str) Versionsnummer (immer erhöhen für Updates!)
-version = 1.0.
+# (str) Application version
+version = 0.9
 
-# (list) Wichtige Pakete für Kivy + Internet + SSL
+# (list) Application requirements
+# WICHTIG: certifi ist nötig für die Quanten-Abfrage (SSL)
 requirements = python3,kivy,requests,certifi,urllib3,idna,charset-normalizer
 
-# (list) Berechtigungen (Internet ist Pflicht!)
+# (str) Custom source folders for requirements
+# (list) Permissions
 android.permissions = INTERNET
 
-# (str) Pfad zu deinem Logo
+# (str) Icon of the application
 icon.filename = %(source.dir)s/icon.png
 
-# (str) Pfad zum Startbildschirm (Splash)
+# (str) Presplash of the application
 presplash.filename = %(source.dir)s/presplash.png
 
-# (str) Ausrichtung
+# (str) Supported orientation
 orientation = portrait
 
-# (int) Android API Level (31 ist aktuell Standard für Google Play)
+# (bool) Indicate if the application should be fullscreen or not
+fullscreen = 0
+
+# (int) Android API to use
 android.api = 31
 android.minapi = 21
 android.ndk = 25b
