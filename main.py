@@ -11,27 +11,62 @@ from kivy.clock import Clock
 from kivy.utils import get_color_from_hex
 import random, secrets, requests, threading, time, webbrowser, os
 
-# --- SSL FIX FÜR ANDROID ---
-import certifi
-os.environ['SSL_CERT_FILE'] = certifi.where()
+# --- SSL FIX FÜR ANDROID (Verhindert Absturz bei HTTPS) ---
+try:
+    import certifi
+    os.environ['SSL_CERT_FILE'] = certifi.where()
+except ImportError:
+    pass
 
-# --- FARBEN ---
+# --- DESIGN FARBEN ---
 CLR_BG = get_color_from_hex("#020617")
 CLR_ACCENT = get_color_from_hex("#22d3ee")
 CLR_GOLD = get_color_from_hex("#fbbf24")
 CLR_RED = get_color_from_hex("#f43f5e")
 
+# --- LOTTERIE KONFIGURATION ---
+LOTTERIEN = {
+    "6aus49": {"kugeln": 6, "max": 49, "zusatz": "SZ", "z_kugeln": 1, "z_max": 9},
+    "Eurojackpot": {"kugeln": 5, "max": 50, "zusatz": "EZ", "z_kugeln": 2, "z_max": 12},
+    "Glücksspirale": {"kugeln": 7, "max": 9, "zusatz": None, "z_kugeln": 0, "z_max": 0},
+    "Freiheit": {"kugeln": 7, "max": 38, "zusatz": None, "z_kugeln": 0, "z_max": 0}
+}
+
+class KarmaManager:
+    """Verwaltet die Spendenprojekte und sorgt für Zufall ohne sofortige Wiederholung"""
+    def __init__(self):
+        self.projekte_pool = {}
+        self.verfuegbare_stapel = {}
+
+    def update_daten(self, neue_daten):
+        self.projekte_pool = neue_daten
+        self.verfuegbare_stapel = {r: list(p) for r, p in neue_daten.items()}
+        for r in self.verfuegbare_stapel:
+            random.shuffle(self.verfuegbare_stapel[r])
+
+    def ziehe_projekt(self, region):
+        if region not in self.verfuegbare_stapel or not self.verfuegbare_stapel[region]:
+            if region in self.projekte_pool:
+                self.verfuegbare_stapel[region] = list(self.projekte_pool[region])
+                random.shuffle(self.verfuegbare_stapel[region])
+            else:
+                return ("Global Karma", "https://www.google.com")
+        
+        # Gibt ein Tupel (Name, URL) zurück
+        return self.verfuegbare_stapel[region].pop()
+
 class QuantumLottoKarmaApp(App):
     def build(self):
         self.is_drawing = False
         self.current_lotto = "6aus49"
-        self.current_region = "BAYERN" # Standard-Startwert
+        self.current_region = "BAYERN"
         self.karma_manager = KarmaManager()
 
+        # Haupt-Layout
         self.root = BoxLayout(orientation='vertical', padding=dp(15), spacing=dp(10))
         
         # Titel
-        self.root.add_widget(Label(text="VORTEX LOTTO 1.1.2", font_size=sp(22), bold=True, 
+        self.root.add_widget(Label(text="VORTEX LOTTO v1.2", font_size=sp(22), bold=True, 
                                    color=CLR_ACCENT, size_hint_y=None, height=dp(40)))
 
         # 1. LOTTERIE AUSWAHL
@@ -56,7 +91,7 @@ class QuantumLottoKarmaApp(App):
         self.history_scroll.add_widget(self.history_list)
         self.root.add_widget(self.history_scroll)
 
-        # 4. DYNAMISCHES REGIONEN-GRID (In ScrollView für viele Länder)
+        # 4. DYNAMISCHES REGIONEN-GRID
         self.region_scroll = ScrollView(size_hint_y=None, height=dp(80))
         self.region_grid = GridLayout(cols=3, size_hint_y=None, spacing=dp(5))
         self.region_grid.bind(minimum_height=self.region_grid.setter('height'))
@@ -78,7 +113,7 @@ class QuantumLottoKarmaApp(App):
         btn_row.add_widget(karma_btn)
         self.root.add_widget(btn_row)
 
-        # Start Online-Abfrage
+        # Hintergrund-Thread für JSON-Laden
         threading.Thread(target=self.fetch_remote_projects, daemon=True).start()
         
         return self.root
@@ -90,33 +125,32 @@ class QuantumLottoKarmaApp(App):
             if r.status_code == 200:
                 data = r.json()
                 self.karma_manager.update_daten(data)
-                # Buttons im Haupt-Thread bauen
                 Clock.schedule_once(lambda dt: self.build_region_buttons(data.keys()))
         except:
-            self.status_label.text = "Offline: Fallback-Projekte aktiv."
+            Clock.schedule_once(lambda dt: setattr(self.status_label, 'text', "Offline-Modus"))
 
     def build_region_buttons(self, keys):
         self.region_grid.clear_widgets()
-        # Alphabetisch sortieren für bessere Übersicht
-        for k in sorted(keys):
+        sorted_keys = sorted(keys)
+        for k in sorted_keys:
             btn = ToggleButton(text=str(k), group="region", 
                                state="down" if k == self.current_region else "normal", 
                                size_hint_y=None, height=dp(35), font_size=sp(10))
             btn.bind(on_release=lambda x, n=k: self.set_region(n))
             self.region_grid.add_widget(btn)
+        if sorted_keys and self.current_region not in sorted_keys:
+            self.current_region = sorted_keys[0]
 
     def set_lotto(self, name):
         self.current_lotto = name
-        for lbl in self.ball_labels: 
-            lbl.text = " "
+        for lbl in self.ball_labels: lbl.text = " "
         self.status_label.text = f"Modus: {name}"
 
     def set_region(self, name):
         self.current_region = name
-        self.status_label.text = f"Region: {name}"
+        self.status_label.text = f"Fokus: {name}"
 
     def open_karma(self, instance):
-        # Holt Projekt-Tupel (Name, URL) aus dem KarmaManager
         projekt = self.karma_manager.ziehe_projekt(self.current_region)
         if projekt:
             webbrowser.open(projekt[1])
@@ -145,7 +179,7 @@ class QuantumLottoKarmaApp(App):
             Clock.schedule_once(lambda dt, idx=i, v=val: self.update_ui_ball(idx, v, False))
             time.sleep(0.3)
 
-        # Zusatzzahlen (ohne Lücke)
+        # Zusatzzahlen
         gezogene_z = []
         for j in range(z_count):
             while True:
@@ -156,11 +190,10 @@ class QuantumLottoKarmaApp(App):
             Clock.schedule_once(lambda dt, idx=h_count+j, v=val: self.update_ui_ball(idx, v, True))
             time.sleep(0.3)
 
-        # Überflüssige Kugeln leeren
+        # Rest leeren
         for k in range(h_count + z_count, 7):
             Clock.schedule_once(lambda dt, idx=k: self.update_ui_ball(idx, "", False))
 
-        # Historie füllen
         res = f"{self.current_lotto}: " + ", ".join(map(str, sorted(gezogene_h)))
         if gezogene_z:
             res += f" | {config['zusatz']}: " + ", ".join(map(str, sorted(gezogene_z)))
@@ -178,14 +211,15 @@ class QuantumLottoKarmaApp(App):
         self.status_label.text = "Ziehung beendet."
 
     def add_to_history(self, text):
-        lbl = Label(text=text, font_size=sp(10), size_hint_y=None, height=dp(25), color=(0.7,0.7,0.7,1))
-        self.history_list.add_widget(lbl, index=0)
+        self.history_list.add_widget(Label(text=text, font_size=sp(10), size_hint_y=None, 
+                                           height=dp(25), color=(0.7,0.7,0.7,1)), index=0)
 
     def get_q(self, pool):
         try:
-            # Quanten-Zufall API
             r = requests.get("https://quantumnumbers.anu.edu.au/api/v1/random?length=1&type=uint8&apiKey=BfPlcBrXfz5JKtQs0nlTN7OBJx2nGsuI5WUaKtvR", timeout=1.5)
             return pool[r.json()['data'][0] % len(pool)]
         except:
             return secrets.choice(pool)
 
+if __name__ == '__main__':
+    QuantumLottoKarmaApp().run()
