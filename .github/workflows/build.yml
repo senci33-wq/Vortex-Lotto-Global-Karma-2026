@@ -1,51 +1,12 @@
-name: Android Build Final
-
-on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Free Disk Space
+  - name: Build with Buildozer
         run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good libsqlite3-dev sqlite3 bzip2 libbz2-dev libffi-dev libssl-dev xz-utils autoconf automake libtool
-          pip install --upgrade pip
-          pip install --user buildozer cython==0.29.33 virtualenv
-          echo "/home/runner/.local/bin" >> $GITHUB_PATH
-
-      - name: Build with Buildozer
-        run: |
-          # Erzwinge das Akzeptieren der Lizenzen VOR dem eigentlichen Build
-          mkdir -p ~/.android
-          touch ~/.android/repositories.cfg
-          # Starte den Build mit erhöhtem Log-Level
+          # Löscht ALLES Alte, um 'aidl not found' zu fixen
+          rm -rf .buildozer/
+          
+          # Sicherstellen, dass die Version stimmt
+          sed -i 's/version = .*/version = 1.1/g' buildozer.spec
+          
+          # Jetzt der frische Build
           buildozer -v android release
         env:
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Vortex-Lotto-Package
-          path: bin/*.aab
