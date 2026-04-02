@@ -13,6 +13,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Free Disk Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -24,65 +30,23 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install System Dependencies
+      - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            git \
-            ffmpeg \
-            libsdl2-dev \
-            libsdl2-image-dev \
-            libsdl2-mixer-dev \
-            libsdl2-ttf-dev \
-            libportmidi-dev \
-            libswscale-dev \
-            libavformat-dev \
-            libavcodec-dev \
-            zlib1g-dev \
-            libgstreamer1.0-dev \
-            gstreamer1.0-plugins-base \
-            gstreamer1.0-plugins-good \
-            gstreamer1.0-plugins-bad \
-            gstreamer1.0-plugins-ugly \
-            gstreamer1.0-libav \
-            libsqlite3-dev \
-            sqlite3 \
-            bzip2 \
-            libbz2-dev \
-            libffi-dev \
-            libssl-dev \
-            xz-utils
-
-      - name: Install Buildozer and Cython
-        run: |
+          sudo apt-get install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good libsqlite3-dev sqlite3 bzip2 libbz2-dev libffi-dev libssl-dev xz-utils
           pip install --upgrade pip
-          pip install --user buildozer cython virtualenv
-          # Fügt den lokalen bin-Pfad zum PATH hinzu, damit 'buildozer' gefunden wird
+          pip install --user buildozer cython==0.29.33 virtualenv
           echo "/home/runner/.local/bin" >> $GITHUB_PATH
 
       - name: Build with Buildozer
         run: |
-          # 'yes' akzeptiert automatisch alle Android SDK Lizenzen während des Builds
-          yes | buildozer android release
+          # Log-Level 2 zeigt uns JEDEN Fehler im Detail
+          buildozer -v android release
         env:
-          # Verhindert Fehler bei manchen Abhängigkeiten
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
-
-      - name: Sign AAB (Optional)
-        if: success()
-        run: |
-          if [ -n "${{ secrets.ANDROID_KEYSTORE_CONTENT }}" ]; then
-            echo "${{ secrets.ANDROID_KEYSTORE_CONTENT }}" | base64 -d > release.jks
-            # Hinweis: Hier müsste noch der jarsigner Befehl folgen, falls du ein Release planst
-          else
-            echo "Kein Keystore gefunden, überspringe Signierung."
-          fi
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: python-android-package
-          # Sucht automatisch im bin/ Ordner nach der erzeugten .apk oder .aab
           path: bin/*.aab
-          if-no-files-found: warn
