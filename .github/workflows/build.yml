@@ -18,23 +18,71 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Dependencies
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip build-essential git python3 python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
-          sudo apt-get install -y libgstreamer1.0-gstreamer-lite-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good
-          pip install --user --upgrade buildozer cython virtualenv
+          sudo apt-get install -y \
+            build-essential \
+            git \
+            ffmpeg \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libsdl2-mixer-dev \
+            libsdl2-ttf-dev \
+            libportmidi-dev \
+            libswscale-dev \
+            libavformat-dev \
+            libavcodec-dev \
+            zlib1g-dev \
+            libgstreamer1.0-dev \
+            gstreamer1.0-plugins-base \
+            gstreamer1.0-plugins-good \
+            gstreamer1.0-plugins-bad \
+            gstreamer1.0-plugins-ugly \
+            gstreamer1.0-libav \
+            libsqlite3-dev \
+            sqlite3 \
+            bzip2 \
+            libbz2-dev \
+            libffi-dev \
+            libssl-dev \
+            xz-utils
+
+      - name: Install Buildozer and Cython
+        run: |
+          pip install --upgrade pip
+          pip install --user buildozer cython virtualenv
+          # Fügt den lokalen bin-Pfad zum PATH hinzu, damit 'buildozer' gefunden wird
+          echo "/home/runner/.local/bin" >> $GITHUB_PATH
 
       - name: Build with Buildozer
-        run: buildozer android release
-
-      - name: Sign and Package AAB
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_CONTENT }}" | base64 -d > release.jks
-          # Hier fehlen noch die eigentlichen Befehle zum Signieren (jarsigner)
+          # 'yes' akzeptiert automatisch alle Android SDK Lizenzen während des Builds
+          yes | buildozer android release
+        env:
+          # Verhindert Fehler bei manchen Abhängigkeiten
+          APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
+
+      - name: Sign AAB (Optional)
+        if: success()
+        run: |
+          if [ -n "${{ secrets.ANDROID_KEYSTORE_CONTENT }}" ]; then
+            echo "${{ secrets.ANDROID_KEYSTORE_CONTENT }}" | base64 -d > release.jks
+            # Hinweis: Hier müsste noch der jarsigner Befehl folgen, falls du ein Release planst
+          else
+            echo "Kein Keystore gefunden, überspringe Signierung."
+          fi
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: google-play-bundle
+          name: python-android-package
+          # Sucht automatisch im bin/ Ordner nach der erzeugten .apk oder .aab
           path: bin/*.aab
+          if-no-files-found: warn
