@@ -1,12 +1,15 @@
-  - name: Build with Buildozer
+- name: Install Dependencies
         run: |
-          # Löscht ALLES Alte, um 'aidl not found' zu fixen
-          rm -rf .buildozer/
+          sudo apt-get update
+          sudo apt-get install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good libsqlite3-dev sqlite3 bzip2 libbz2-dev libffi-dev libssl-dev xz-utils autoconf automake libtool
           
-          # Sicherstellen, dass die Version stimmt
-          sed -i 's/version = .*/version = 1.1/g' buildozer.spec
+          # WICHTIG: Pip upgraden und Pakete einzeln installieren
+          pip install --upgrade pip
+          pip install --user Cython==0.29.33 virtualenv
           
-          # Jetzt der frische Build
-          buildozer -v android release
-        env:
-          APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
+          # Wir installieren buildozer und p4a direkt von GitHub, um Pfadfehler zu vermeiden
+          pip install --user https://github.com/kivy/buildozer/archive/master.zip
+          pip install --user https://github.com/kivy/python-for-android/archive/master.zip
+          
+          # Pfad für die Runner-Session setzen
+          echo "/home/runner/.local/bin" >> $GITHUB_PATH
