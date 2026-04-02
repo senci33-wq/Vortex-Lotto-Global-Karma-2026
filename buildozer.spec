@@ -19,7 +19,7 @@ version = 1.1
 
 # (list) Application requirements
 # WICHTIG: certifi ist nötig für die Quanten-Abfrage (SSL)
-requirements = python3,kivy,requests,certifi,urllib3,idna,charset-normalizer
+requirements = python3,kivy,requests,certifi,charset-normalizer,idna,urllib3
 
 # (str) Custom source folders for requirements
 # (list) Permissions
