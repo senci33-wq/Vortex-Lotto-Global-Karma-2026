@@ -15,7 +15,7 @@ source.dir = .
 source.include_exts = py,kv,json,png
 
 # (str) Application version
-version = 1.1.8
+version = 1.1
 
 # (list) Application requirements
 # WICHTIG: certifi ist nötig für die Quanten-Abfrage (SSL)
@@ -40,6 +40,7 @@ fullscreen = 0
 # (int) Android API to use
 android.api = 34
 android.minapi = 21
+p4a.branch = master
 android.ndk = 25b
 android.archs = arm64-v8a
 android.release_artifact = aab
