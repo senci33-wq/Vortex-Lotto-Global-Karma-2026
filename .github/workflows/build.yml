@@ -1,4 +1,6 @@
 name: Android Build Final Fix
+ - name: Install AIDL
+        run: sudo apt-get install -y aidl
 
 on:
   push:
