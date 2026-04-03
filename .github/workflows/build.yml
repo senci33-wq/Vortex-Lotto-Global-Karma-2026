@@ -8,37 +8,33 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Zwingend 22.04 nutzen, da 24.04 aktuell Kompatibilitätsprobleme mit Android hat
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      # --- DAS IST DIE OPTIMIERUNG / DER BUGFIX ---
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            libtool \
-            autoconf \
-            automake \
-            pkg-config \
-            libffi-dev \
-            libssl-dev \
-            zip \
-            unzip
-      # --------------------------------------------
+          sudo apt-get install -y build-essential git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+
+      - name: Install Buildozer
+        run: |
+          pip install --upgrade Cython virtualenv
+          pip install buildozer
 
       - name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
-        with:
-          command: buildozer android debug
-          buildozer_version: master
+        run: buildozer android debug
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: package
-          path: ${{ steps.buildozer.outputs.filename }}
+          path: bin/*.apk
