@@ -10,7 +10,8 @@ package.domain = org.senci33
 
 source.dir = .
 source.include_exts = py,kv,json,png,jpg,atlas
-version = 1.2
+version = 1.0.0
+version.code = 1
 
 # WICHTIG: openssl für Internet-Sicherheit (HTTPS)
 requirements = python3,kivy,requests,certifi,charset-normalizer,idna,urllib3,openssl
