@@ -4,9 +4,9 @@ package.name = vortexlotto
 package.domain = org.senci33
 source.dir = .
 source.include_exts = py,kv,json,png,jpg,atlas
-version = 1.4
+version = 1.2
 
-# WICHTIG: openssl für Google Play / Internet-Sicherheit
+# WICHTIG für SSL und Google Play Anforderungen
 requirements = python3,kivy,requests,certifi,charset-normalizer,idna,urllib3,openssl
 
 android.permissions = INTERNET
@@ -14,19 +14,20 @@ orientation = portrait
 fullscreen = 0
 
 # ==========================================================
-# Android Play Store Einstellungen
+# Android Play Store Optimierung
 # ==========================================================
 
-# Google verlangt aktuell API 34 für neue Apps, aber 33 wird oft noch akzeptiert.
-# Wir bleiben bei 33 für die Stabilität im Build, da 34 oft Java-Fehler wirft.
+# API 33 ist stabil für den GitHub Build
 android.api = 33
 android.minapi = 21
 android.ndk = 25b
 android.build_tools_version = 33.0.0
 android.accept_sdk_license = True
 
-# WICHTIG: Hier wird festgelegt, dass eine .aab statt einer .apk erzeugt wird
+# Dies erzeugt die .aab Datei
 android.release_artifact = aab
+
+# Google Play verlangt zwingend arm64-v8a
 android.archs = arm64-v8a, armeabi-v7a
 
 [buildozer]
