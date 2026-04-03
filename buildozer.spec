@@ -6,7 +6,7 @@ source.dir = .
 source.include_exts = py,kv,json,png,jpg,atlas
 version = 1.2
 
-# WICHTIG für SSL und Google Play Anforderungen
+# WICHTIG: openssl für Google Play / HTTPS
 requirements = python3,kivy,requests,certifi,charset-normalizer,idna,urllib3,openssl
 
 android.permissions = INTERNET
@@ -14,20 +14,20 @@ orientation = portrait
 fullscreen = 0
 
 # ==========================================================
-# Android Play Store Optimierung
+# Android Einstellungen für Play Store
 # ==========================================================
 
-# API 33 ist stabil für den GitHub Build
+# API 33 ist für den Build am stabilsten
 android.api = 33
 android.minapi = 21
 android.ndk = 25b
 android.build_tools_version = 33.0.0
 android.accept_sdk_license = True
 
-# Dies erzeugt die .aab Datei
+# Hier wird die .aab Datei aktiviert
 android.release_artifact = aab
 
-# Google Play verlangt zwingend arm64-v8a
+# Google Play verlangt beide Architekturen (insb. arm64-v8a)
 android.archs = arm64-v8a, armeabi-v7a
 
 [buildozer]
