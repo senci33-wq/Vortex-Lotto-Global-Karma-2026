@@ -1,35 +1,36 @@
-- name: Checkout source code
-  uses: actions/checkout@v4
+[app]
+# (1) Name und Paket
+title = LottoVortex
+package.name = lottovortex
+package.domain = org.senci33
 
-- name: Setup Python
-  uses: actions/setup-python@v5
-  with:
-    python-version: '3.11'
+# (2) Wichtige Dateien
+source.dir = .
+source.include_exts = py,kv,json,png,jpg,atlas
 
-- name: Setup Java 17
-  uses: actions/setup-java@v4
-  with:
-    distribution: 'temurin'
-    java-version: '17'
+# (3) Version
+version = 1.0.0
+version.code = 1
 
-- name: Install System Dependencies
-  run: |
-    sudo apt-get update
-    sudo apt-get install -y build-essential git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+# (4) Die Requirements (HIER war der Fehler mit pyjnius und long)
+requirements = python3,kivy==2.3.0,pyjnius,requests,certifi,charset-normalizer,idna,urllib3
 
-- name: Install Buildozer and Cython
-  run: |
-    python -m pip install --upgrade pip
-    pip install "Cython<3.0" virtualenv 
-    pip install buildozer
+# (5) Berechtigungen und Ausrichtung
+android.permissions = INTERNET
+orientation = portrait
+fullscreen = 0
 
-- name: Build with Buildozer
-  run: |
-    rm -rf .buildozer
-    buildozer android debug
+# (6) Android Einstellungen
+android.api = 34
+android.minapi = 21
+android.ndk = 25b
+android.ndk_api = 21
+android.accept_sdk_license = True
+android.copy_libs = 1
 
-- name: Upload Artifact
-  uses: actions/upload-artifact@v4
-  with:
-    name: package
-    path: bin/*.apk
+# (7) Die Architekturen (Wichtig für Google Play)
+android.archs = arm64-v8a,armeabi-v7a
+
+[buildozer]
+log_level = 2
+warn_on_root = 1
