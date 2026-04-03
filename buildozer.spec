@@ -24,7 +24,7 @@ fullscreen = 0
 # ==========================================================
 
 # API 33 ist aktuell die stabilste Wahl für Buildozer-Actions
-android.api = 33
+android.api = 34
 android.minapi = 21
 android.ndk = 25b
 android.build_tools_version = 33.0.0
