@@ -1,4 +1,4 @@
-name: Android Play Store Build
+name: Android Build
 
 on:
   push:
@@ -7,30 +7,28 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install System Dependencies (Fix Aidl)
+      - name: Install System Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential git python3-dev aidl libffi-dev libssl-dev
 
       - name: Build with Buildozer
-        # Großschreibung bei ArtemSerebrennikov ist korrigiert
+        # Wir nutzen hier die stabilste Version mit exakter Schreibweise
         uses: ArtemSerebrennikov/buildozer-action@v1
         with:
           command: buildozer android release
           buildozer_version: master
 
-      - name: Upload AAB Artifact
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Vortex-Lotto-Bundle
+          name: Vortex-Lotto-AAB
           path: bin/*.aab
