@@ -1,4 +1,32 @@
-- name: Build with Buildozer
+name: Android Play Store Build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install System Dependencies (Aidl Fix)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential git python3-dev aidl \
+            libffi-dev libssl-dev autoconf automake \
+            libtool pkg-config zlib1g-dev
+
+      - name: Build with Buildozer
+        # WICHTIG: A und S müssen groß sein!
         uses: ArtemSerebrennikov/buildozer-action@v1
         with:
           command: buildozer android release
@@ -7,5 +35,5 @@
       - name: Upload AAB Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Vortex-Lotto-Bundle
+          name: Vortex-Lotto-PlayStore-Bundle
           path: bin/*.aab
