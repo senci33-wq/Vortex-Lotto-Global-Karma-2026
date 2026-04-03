@@ -1,9 +1,7 @@
-name: Android Build
+name: Android Play Store Build (AAB)
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
     branches: [ main ]
 
 jobs:
@@ -19,31 +17,24 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install System Dependencies (Fix Aidl & SSL)
+      - name: Install System Dependencies (Aidl Fix)
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            build-essential \
-            git \
-            python3-dev \
-            aidl \
-            libffi-dev \
-            libssl-dev \
-            autoconf \
-            automake \
-            libtool \
-            pkg-config \
-            zlib1g-dev
+            build-essential git python3-dev aidl \
+            libffi-dev libssl-dev autoconf automake \
+            libtool pkg-config zlib1g-dev
 
       - name: Build with Buildozer
-        # WICHTIG: Korrekte Groß-/Kleinschreibung
         uses: ArtemSerebrennikov/buildozer-action@v1
         with:
-          command: buildozer android debug
+          # Wir bauen jetzt "release" für den Play Store
+          command: buildozer android release
           buildozer_version: master
 
-      - name: Upload APK Artifact
+      - name: Upload AAB Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Vortex-Lotto-Debug-APK
-          path: bin/*.apk
+          name: Vortex-Lotto-PlayStore-Bundle
+          # Der Pfad für AABs ist ebenfalls im bin/ Ordner
+          path: bin/*.aab
