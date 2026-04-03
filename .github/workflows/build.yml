@@ -3,8 +3,6 @@ name: Google Play Build Final
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
   build:
@@ -20,19 +18,22 @@ jobs:
           python-version: '3.11'
 
       - name: Install System Dependencies
-        # Hier haben wir python3-pip entfernt, damit es unsere Python 3.11 Version nicht überschreibt!
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
 
-      - name: Install Buildozer
+      - name: Install Buildozer and Cython
         run: |
           python -m pip install --upgrade pip
-          pip install --upgrade Cython virtualenv
+          # Wir installieren Cython 0.29.36, da die 3.x Versionen oft den "long" Fehler bei Pyjnius verursachen
+          pip install "Cython<3.0" virtualenv 
           pip install buildozer
 
       - name: Build with Buildozer
-        run: buildozer android debug
+        run: |
+          # Wir löschen alte Reste, um ganz sicher zu gehen
+          rm -rf .buildozer
+          buildozer android debug
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
