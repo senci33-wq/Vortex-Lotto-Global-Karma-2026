@@ -1,26 +1,36 @@
-# (1) Der App-Titel und Paketname (Sicherstellen, dass keine Sonderzeichen drin sind)
-title = MeinLottoProjekt
+[app]
+# (1) Name und Paket
+title = LottoVortex
 package.name = lottovortex
 package.domain = org.deinname
 
-# (2) Die Requirements - Das ist das Herzstück!
-# Wir setzen Kivy auf 2.3.0 fest und fügen pyjnius hinzu
+# (2) Wichtige Dateien
+source.dir = .
+source.include_exts = py,kv,json,png,jpg,atlas
+
+# (3) Version
+version = 1.0.0
+version.code = 1
+
+# (4) Die Requirements - Hier ist alles Wichtige drin!
 requirements = python3,kivy==2.3.0,pyjnius,requests,certifi,charset-normalizer,idna,urllib3
 
-# (3) Android Spezifikationen
-# API 34 ist aktuell Standard für den Play Store
+# (5) Berechtigungen und Ausrichtung
+android.permissions = INTERNET
+orientation = portrait
+fullscreen = 0
+
+# (6) Android Einstellungen
 android.api = 34
 android.minapi = 21
 android.ndk = 25b
 android.ndk_api = 21
+android.accept_sdk_license = True
+android.copy_libs = 1
 
-requirements = python3,kivy==2.3.0,pyjnius,requests,certifi,charset-normalizer,idna,urllib3
-# Falls diese Zeile auskommentiert ist (mit #), entferne das #
-android.permissions = INTERNET
+# (7) Die Architekturen (Ohne Leerzeichen nach dem Komma!)
+android.archs = arm64-v8a,armeabi-v7a
 
-# (5) Architekturen
-# Für moderne Handys und den Play Store brauchst du beide:
-android.archs = arm64-v8a, armeabi-v7a
-
-# (6) Log-Level auf 2 lassen, damit wir Fehler sehen
+[buildozer]
 log_level = 2
+warn_on_root = 1
