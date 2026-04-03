@@ -1,4 +1,4 @@
-name: Build for Google Play (Release)
+name: Google Play Build
 
 on:
   push:
@@ -6,22 +6,23 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04 # Stabilere Version für Buildozer
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Buildozer braucht viel Platz und Zeit
-      - name: Build with Buildozer (Release AAB)
+      # Buildozer braucht viele Pakete, diese Action installiert alles korrekt
+      - name: Build with Buildozer
         uses: ArtemSerebrennikov/buildozer-action@v1
+        id: buildozer
         with:
           command: buildozer android release
           buildozer_version: master
 
-      # Das App Bundle (.aab) für den Play Store hochladen
-      - name: Upload AAB Artifact
+      # Das fertige Bundle (.aab) für Google Play speichern
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Play-Store-Bundle
+          name: Google-Play-Bundle
           path: bin/*.aab
