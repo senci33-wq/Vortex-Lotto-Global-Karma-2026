@@ -1,4 +1,5 @@
-name: CI
+name: Android Build
+
 on:
   push:
     branches: [ main ]
@@ -18,41 +19,31 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install System Dependencies (Fix Aidl Error)
+      - name: Install System Dependencies (Fix Aidl & SSL)
         run: |
           sudo apt-get update
           sudo apt-get install -y \
             build-essential \
             git \
             python3-dev \
-            ffmpeg \
-            libsdl2-dev \
-            libsdl2-image-dev \
-            libsdl2-mixer-dev \
-            libsdl2-ttf-dev \
-            libportmidi-dev \
-            libswscale-dev \
-            libavformat-dev \
-            libavcodec-dev \
-            zlib1g-dev \
+            aidl \
             libffi-dev \
             libssl-dev \
-            libvlc-dev \
-            libsqlite3-dev \
-            aidl \
             autoconf \
             automake \
             libtool \
-            pkg-config
+            pkg-config \
+            zlib1g-dev
 
       - name: Build with Buildozer
+        # WICHTIG: Korrekte Groß-/Kleinschreibung
         uses: ArtemSerebrennikov/buildozer-action@v1
         with:
           command: buildozer android debug
           buildozer_version: master
 
-      - name: Upload Artifact
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: package
+          name: Vortex-Lotto-Debug-APK
           path: bin/*.apk
