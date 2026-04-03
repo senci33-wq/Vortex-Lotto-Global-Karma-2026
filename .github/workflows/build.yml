@@ -1,4 +1,4 @@
-name: Google Play Build Final
+name: Google Play Build
 
 on:
   push:
@@ -6,22 +6,22 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Diese Action baut deine Python-App in ein Google Play Bundle (.aab) um
-      - name: Build with Buildozer
-        uses: ArtemSerebrennikov/buildozer-action@v1
-        with:
-          command: buildozer android release
-          buildozer_version: master
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip build-essential git python3 python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
+          sudo apt install -y libgstreamer1.0-gstreamer-lite-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+          pip3 install --user --upgrade buildozer cython virtualenv
 
-      # Hier wird die fertige Datei für dich zum Download bereitgestellt
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Google-Play-Bundle
-          path: bin/*.aab
+      - name: Build with Buildozer
+        run: |
+          export PATH=$PATH:$HOME/.local/bin
+          buildozer android release
+        # Hinweis: Das wird beim ersten Mal fehlschlagen, wenn die SDK-Lizenzen fehlen,
+        # aber wir sehen dann wenigstens einen ECHTEN Fortschritt in den Logs!
