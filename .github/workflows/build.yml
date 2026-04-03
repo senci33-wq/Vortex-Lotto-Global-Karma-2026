@@ -1,35 +1,39 @@
-name: Android Build Final 
+name: Android Build Final
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ] # Führt den Build bei jedem Push auf 'main' aus
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
+      # 1. Quellcode auschecken
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      # 2. Java JDK einrichten (Wichtig für Android!)
+      - name: set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          python-version: '3.11'
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
 
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential git python3-dev aidl libffi-dev libssl-dev
+      # 3. Gradle-Ausführungsrechte setzen (Verhindert "Permission Denied")
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-      - name: Build with Buildozer
-        # ACHTUNG: Das 'with' gehört NUR zu dieser Action hier:
-        uses: ArtemSerebrennikov/buildozer-action@v1
-        with:
-          command: buildozer android release
-          buildozer_version: master
+      # 4. Der eigentliche Build-Prozess
+      - name: Build with Gradle
+        run: ./gradlew assembleDebug
 
-      - name: Upload Artifact
+      # 5. Die fertige APK-Datei speichern, damit du sie herunterladen kannst
+      - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Vortex-Lotto-AAB
-          path: bin/*.aab
+          name: app-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
