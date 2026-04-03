@@ -1,36 +1,36 @@
-[app]
-# (1) Name und Paket
-title = LottoVortex
-package.name = lottovortex
-package.domain = org.senci33
+name: Build Android APK
 
-# (2) Wichtige Dateien
-source.dir = .
-source.include_exts = py,kv,json,png,jpg,atlas
+on:
+  push:
+    branches: [ "main" ]
 
-# (3) Version
-version = 1.0.0
-version.code = 1
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-# (4) Die Requirements (HIER war der Fehler mit pyjnius und long)
-requirements = python3,kivy==2.3.0,pyjnius,requests,certifi,charset-normalizer,idna,urllib3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-# (5) Berechtigungen und Ausrichtung
-android.permissions = INTERNET
-orientation = portrait
-fullscreen = 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-# (6) Android Einstellungen
-android.api = 34
-android.minapi = 21
-android.ndk = 25b
-android.ndk_api = 21
-android.accept_sdk_license = True
-android.copy_libs = 1
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+          pip install --upgrade pip
+          pip install "Cython<3.0" buildozer
 
-# (7) Die Architekturen (Wichtig für Google Play)
-android.archs = arm64-v8a,armeabi-v7a
+      - name: Build with Buildozer
+        run: |
+          rm -rf .buildozer
+          buildozer android debug
 
-[buildozer]
-log_level = 2
-warn_on_root = 1
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-app-apk
+          path: bin/*.apk
