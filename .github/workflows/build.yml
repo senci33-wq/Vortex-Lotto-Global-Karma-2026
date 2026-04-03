@@ -8,7 +8,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -21,7 +22,6 @@ jobs:
           sudo apt-get install -y build-essential git python3-dev aidl libffi-dev libssl-dev
 
       - name: Build with Buildozer
-        # Wir nutzen hier die stabilste Version mit exakter Schreibweise
         uses: ArtemSerebrennikov/buildozer-action@v1
         with:
           command: buildozer android release
@@ -32,3 +32,4 @@ jobs:
         with:
           name: Vortex-Lotto-AAB
           path: bin/*.aab
+
