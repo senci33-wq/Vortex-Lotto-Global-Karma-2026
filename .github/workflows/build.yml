@@ -1,4 +1,4 @@
-name: Android Build Final Fix
+name: Android Play Store Build
 
 on:
   push:
@@ -17,16 +17,13 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install System Dependencies (Aidl Fix)
+      - name: Install System Dependencies (Fix Aidl)
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            build-essential git python3-dev aidl \
-            libffi-dev libssl-dev autoconf automake \
-            libtool pkg-config zlib1g-dev
+          sudo apt-get install -y build-essential git python3-dev aidl libffi-dev libssl-dev
 
       - name: Build with Buildozer
-        # HIER LIEGT DER FEHLER IM SCREENSHOT: A und S müssen GROSS sein!
+        # Großschreibung bei ArtemSerebrennikov ist korrigiert
         uses: ArtemSerebrennikov/buildozer-action@v1
         with:
           command: buildozer android release
@@ -35,5 +32,5 @@ jobs:
       - name: Upload AAB Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Vortex-Lotto-PlayStore-Bundle
+          name: Vortex-Lotto-Bundle
           path: bin/*.aab
