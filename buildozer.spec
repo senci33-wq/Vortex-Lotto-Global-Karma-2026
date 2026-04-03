@@ -4,7 +4,7 @@ package.name = vortexlotto
 package.domain = org.senci33
 source.dir = .
 source.include_exts = py,kv,json,png,jpg,atlas
-version = 1.1
+version = 1.4
 
 # WICHTIG: openssl für Google Play / Internet-Sicherheit
 requirements = python3,kivy,requests,certifi,charset-normalizer,idna,urllib3,openssl
