@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-    # Zwingend 22.04 nutzen, da 24.04 aktuell Kompatibilitätsprobleme mit Android hat
     runs-on: ubuntu-22.04
 
     steps:
@@ -21,12 +20,14 @@ jobs:
           python-version: '3.11'
 
       - name: Install System Dependencies
+        # Hier haben wir python3-pip entfernt, damit es unsere Python 3.11 Version nicht überschreibt!
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+          sudo apt-get install -y build-essential git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
 
       - name: Install Buildozer
         run: |
+          python -m pip install --upgrade pip
           pip install --upgrade Cython virtualenv
           pip install buildozer
 
