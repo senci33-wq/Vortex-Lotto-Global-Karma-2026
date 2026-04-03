@@ -1,4 +1,4 @@
-name: Android Build
+name: Android Build Final Fix
 
 on:
   push:
@@ -22,6 +22,7 @@ jobs:
           sudo apt-get install -y build-essential git python3-dev aidl libffi-dev libssl-dev
 
       - name: Build with Buildozer
+        # ACHTUNG: Das 'with' gehört NUR zu dieser Action hier:
         uses: ArtemSerebrennikov/buildozer-action@v1
         with:
           command: buildozer android release
@@ -32,4 +33,3 @@ jobs:
         with:
           name: Vortex-Lotto-AAB
           path: bin/*.aab
-
