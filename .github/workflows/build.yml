@@ -1,4 +1,4 @@
-name: Google Play Build
+name: Google Play Build Final
 
 on:
   push:
@@ -6,21 +6,20 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04 # Stabilere Version für Buildozer
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Buildozer braucht viele Pakete, diese Action installiert alles korrekt
+      # Diese Action baut deine Python-App in ein Google Play Bundle (.aab) um
       - name: Build with Buildozer
         uses: ArtemSerebrennikov/buildozer-action@v1
-        id: buildozer
         with:
           command: buildozer android release
           buildozer_version: master
 
-      # Das fertige Bundle (.aab) für Google Play speichern
+      # Hier wird die fertige Datei für dich zum Download bereitgestellt
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
