@@ -1,54 +1,58 @@
-name: Android Build Final Fix
- - name: Install AIDL
-        run: sudo apt-get install -y aidl
-
+name: CI
 on:
   push:
-    branches: [ "main" ]
-  workflow_dispatch:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Free Disk Space
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /opt/ghc
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          python-version: '3.11'
 
-      - name: Install Dependencies
+      - name: Install System Dependencies (Fix Aidl Error)
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good libsqlite3-dev sqlite3 bzip2 libbz2-dev libffi-dev libssl-dev xz-utils autoconf automake libtool
-          pip install --upgrade pip
-          pip install --user Cython==0.29.33 virtualenv
-          # Das hier ist die wichtigste Zeile gegen den p4a-Fehler:
-          pip install --user https://github.com/kivy/buildozer/archive/master.zip
-          pip install --user https://github.com/kivy/python-for-android/archive/master.zip
-          echo "/home/runner/.local/bin" >> $GITHUB_PATH
+          sudo apt-get install -y \
+            build-essential \
+            git \
+            python3-dev \
+            ffmpeg \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libsdl2-mixer-dev \
+            libsdl2-ttf-dev \
+            libportmidi-dev \
+            libswscale-dev \
+            libavformat-dev \
+            libavcodec-dev \
+            zlib1g-dev \
+            libffi-dev \
+            libssl-dev \
+            libvlc-dev \
+            libsqlite3-dev \
+            aidl \
+            autoconf \
+            automake \
+            libtool \
+            pkg-config
 
       - name: Build with Buildozer
-        run: |
-          # Löscht alte Reste, damit aidl gefunden wird
-          rm -rf .buildozer/
-          # Startet den Build
-          buildozer -v android release
-        env:
-          APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
+        uses: ArtemSerebrennikov/buildozer-action@v1
+        with:
+          command: buildozer android debug
+          buildozer_version: master
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Vortex-Lotto-V1-1
-          path: bin/*.aab
+          name: package
+          path: bin/*.apk
