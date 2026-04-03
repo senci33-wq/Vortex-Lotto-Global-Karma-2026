@@ -14,9 +14,9 @@ android.minapi = 21
 android.ndk = 25b
 android.ndk_api = 21
 
-# (4) Cython-Einstellung (WICHTIG)
+requirements = python3,kivy==2.3.0,pyjnius,requests,certifi,charset-normalizer,idna,urllib3
 # Falls diese Zeile auskommentiert ist (mit #), entferne das #
-android.copy_libs = 1
+android.permissions = INTERNET
 
 # (5) Architekturen
 # Für moderne Handys und den Play Store brauchst du beide:
