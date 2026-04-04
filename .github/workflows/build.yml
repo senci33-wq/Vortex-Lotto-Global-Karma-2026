@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android APK and AAB
 
 on:
   push:
@@ -33,10 +33,12 @@ jobs:
       run: |
         mkdir -p $HOME/android-sdk
         cd $HOME/android-sdk
+
         wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
-        unzip commandlinetools-linux-9477386_latest.zip -d cmdline-tools
+        unzip commandlinetools-linux-9477386_latest.zip -d cmdline-tools-temp
+
         mkdir -p cmdline-tools/latest
-        mv cmdline-tools/* cmdline-tools/latest/ || true
+        mv cmdline-tools-temp/* cmdline-tools/latest/
 
         export ANDROID_HOME=$HOME/android-sdk
         export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
@@ -51,14 +53,26 @@ jobs:
         export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
         yes | sdkmanager --licenses
 
-    - name: Build APK
+    - name: Build APK (debug)
       run: |
         export ANDROID_HOME=$HOME/android-sdk
         export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
         buildozer android debug
 
-    - name: Upload APK artifact
+    - name: Build AAB (release, unsigned)
+      run: |
+        export ANDROID_HOME=$HOME/android-sdk
+        export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+        buildozer android release
+
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: Vortex-Lotto-Global-Karma-2026-APK
-        path: bin/*.apk 
+        name: APK-Debug
+        path: bin/*.apk
+
+    - name: Upload AAB
+      uses: actions/upload-artifact@v4
+      with:
+        name: AAB-Release
+        path: bin/*.aab 
