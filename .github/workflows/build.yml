@@ -25,7 +25,7 @@ jobs:
           python3 python3-pip python3-venv python3-dev \
           build-essential git zip unzip \
           openjdk-17-jdk \
-          libffi8 libffi8-dev \
+          libffi8 libffi-dev \
           libssl-dev \
           liblzma-dev \
           libsqlite3-dev \
