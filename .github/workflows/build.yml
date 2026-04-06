@@ -1,4 +1,4 @@
-name: Build Android AAB
+name: Build Android APK and AAB
 
 on:
   push:
@@ -45,7 +45,11 @@ jobs:
       run: |
         echo "${{ secrets.KEYSTORE_FILE }}" | base64 --decode > my-release-key.keystore
 
-    - name: Build AAB with Buildozer
+    - name: Build APK (debug)
+      run: |
+        buildozer android debug
+
+    - name: Build AAB (release)
       env:
         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -53,7 +57,13 @@ jobs:
       run: |
         buildozer android release
 
-    - name: Upload AAB artifact
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: Vortex-Android-APK
+        path: bin/*.apk
+
+    - name: Upload AAB
       uses: actions/upload-artifact@v4
       with:
         name: Vortex-Android-AAB
