@@ -1,41 +1,54 @@
-[app]
+name: Build Android APK
 
-title = Vortex Karma
-package.name = vortexkarma
-package.domain = org.karma
-source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,ttf,otf,json,txt,md
-version = 1.0.0
-requirements = python3,kivy,kivymd
-orientation = portrait
-fullscreen = 1
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
 
-android.api = 34
-android.minapi = 23
-android.ndk = 25b
-android.ndk_api = 23
-android.archs = arm64-v8a,armeabi-v7a
+jobs:
+  build:
+    # Wechsel auf ubuntu-22.04, da dies für das Android NDK stabiler ist als 24.04
+    runs-on: ubuntu-22.04
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-android.release_artifact = aab
-android.permissions = INTERNET
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-android.enable_androidx = True
-android.multidex = True
-android.gradle_dependencies = com.android.support:multidex:1.0.3
+      - name: Cache Buildozer
+        uses: actions/cache@v4
+        with:
+          path: .buildozer
+          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            ${{ runner.os }}-buildozer-
 
-android.sign = True
-android.keystore = my-release-key.keystore
-android.keyalias = myappkey
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          # Installation aller notwendigen Pakete inklusive Korrektur für libtinfo
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool \
+          pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake \
+          libffi-dev libssl-dev
+          pip install --upgrade pip
+          pip install "Cython<3.0" buildozer
 
-[buildozer]
-log_level = 2
-warn_on_root = 1
+      - name: Build with Buildozer
+        run: |
+          # 'yes |' für Lizenzen, 'log_level = 2' für besseres Debugging bei Absturz
+          yes | buildozer android debug
+        env:
+          BUILDOZER_ALLOW_ORG_NAME_START: 1
+          # Begrenzt die parallelen Prozesse, um "Broken Pipe" durch RAM-Mangel zu verhindern
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Xmx2048m"
 
-[python]
-# zusätzliche libs hier eintragen
-
-[android]
-android.extra_args = --enable-optimizations
-
-[spelling]
-ignore_words = kivy,kivymd 
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-app-apk
+          path: bin/*.apk
+          retention-days: 3
