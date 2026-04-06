@@ -16,7 +16,7 @@ fullscreen = 1
 android.api = 34
 android.minapi = 21
 # NDK 25b ist gut, aber 25c ist oft stabiler für API 34
-android.ndk = 25b
+android.ndk = 
 android.ndk_api = 21
 android.archs = arm64-v8a,armeabi-v7a
 
