@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-24.04
@@ -36,23 +39,27 @@ jobs:
             autoconf \
             libtool \
             pkg-config \
-            zlib1g-dev
+            zlib1g-dev \
+            libsqlite3-dev \
+            gawk \
+            texinfo
 
       - name: Install Python Build Tools
         run: |
           pip install --upgrade pip
-          pip install "Cython<3.0" buildozer-remote buildozer kivy==2.3.0
+          pip install "Cython<3.0" buildozer kivy==2.3.0
 
       - name: Build with Buildozer
         run: |
-          # Wir erzwingen die Akzeptanz der Android SDK Lizenzen
-          yes | buildozer android debug
+          # Erstellt notwendige Ordner vorab, um Exit Code 100 zu vermeiden
+          mkdir -p .buildozer
+          # Akzeptiert Android-Lizenzen automatisch und startet den Build
+          yes | buildozer -v android debug
         env:
-          # Verhindert Fehler durch Root-Berechtigungen im Runner
           BUILDOZER_ALLOW_ORG_NAME_START: 1
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: package
+          name: Vortex-Lotto-APK
           path: bin/*.apk
