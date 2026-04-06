@@ -1,36 +1,28 @@
 [app]
-# (str) Title of your application
 title = Vortex Lotto
-
-# (str) Package name
 package.name = vortexlotto
-
-# (str) Package domain (needed for android packaging)
 package.domain = org.senci33
 
-# (list) Application requirements
-# WICHTIG: Cython hier NICHT listen, das haben wir im Workflow installiert
+# WICHTIG: Keine Leerzeichen nach den Kommas!
 requirements = python3,kivy==2.3.0,requests,certifi,openssl
 
-# (int) Android API to use
+# Android spezifisch
 android.api = 34
-
-# (int) Minimum API your APK will support
 android.minapi = 21
 
-# (str) Android NDK version to use
-# Version 25b ist die stabilste Wahl für Kivy 2.3.0 auf GitHub Runners
+# NDK 25b ist die stabilste Version für Kivy 2.3.0 auf GitHub
 android.ndk = 25b
+android.ndk_path = 
 
-# (list) The Android architectures to build for
+# Architektur für moderne Smartphones (64-bit)
 android.archs = arm64-v8a
 
-# (bool) Use copy-libs (needed for some newer NDKs)
+# Erforderlich für neuere Android APIs
+android.allow_backup = True
 android.copy_libs = 1
 
-# (int) Log level (0 = error only, 1 = info, 2 = debug)
-# Auf 2 lassen, falls es doch noch einen Fehler gibt!
-log_level = 2
-
-# (bool) Allow to run buildozer as root (wichtig für CI)
+# Verhindert Fehler beim Starten des Build-Prozesses im Runner
 buildozer.allow_org_name_start = 1
+
+# Log Level auf 2 lassen für detaillierte Fehlersuche
+log_level = 2
