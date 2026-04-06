@@ -1,68 +1,23 @@
 name: Build Android APK
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  workflow_dispatch: # Ermöglicht manuelles Starten
-
+on: [push, pull_request, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Install System Dependencies
+      - name: Install Build Tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            libsqlite3-dev \
-            sqlite3 \
-            bzip2 \
-            libbz2-dev \
-            zlib1g-dev \
-            libgdbm-dev \
-            libncurses5-dev \
-            libssl-dev \
-            libffi-dev \
-            readline-common \
-            libreadline-dev \
-            libdb5.3-dev \
-            libgdbm-compat-dev \
-            libexpat1-dev \
-            liblzma-dev \
-            tar \
-            wget \
-            zip \
-            unzip \
-            openjdk-17-jdk
-
-      - name: Install Buildozer & Cython
-        run: |
-          pip install --upgrade pip
+          sudo apt-get install -y build-essential openjdk-17-jdk libssl-dev libffi-dev zip unzip
           pip install buildozer cython==0.29.33
-
-      - name: Build Android APK
-        run: |
-          # Das "yes |" am Anfang drückt automatisch "y" bei allen Lizenzabfragen
-          # Dies verhindert den "Broken Pipe" Fehler im Runner
-          yes | buildozer android debug
-        env:
-          # Erlaubt Buildozer den Zugriff auf bestimmte System-Ressourcen
-          BUILDOZER_ALLOW_ORG_NAME_START: 1
-
-      - name: Upload APK Artifact
+      - name: Build APK
+        run: yes | buildozer android debug
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Vortex-Lotto-Debug-APK
+          name: VortexLotto-APK
           path: bin/*.apk
-          if-no-files-found: error
