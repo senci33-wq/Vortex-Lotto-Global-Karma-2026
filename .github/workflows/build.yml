@@ -1,9 +1,14 @@
 name: Build Android APK
-on: [push, pull_request, workflow_dispatch]
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -13,27 +18,41 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Build Tools
+      - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential openjdk-17-jdk libssl-dev libffi-dev zip unzip tar wget
-          pip install --upgrade pip
-          pip install buildozer cython==0.29.33
+          sudo apt-get install -y \
+            build-essential \
+            git \
+            python3-dev \
+            cmake \
+            libffi-dev \
+            libssl-dev \
+            libtinfo5 \
+            libncurses5 \
+            zip \
+            unzip \
+            openjdk-17-jdk \
+            autoconf \
+            libtool \
+            pkg-config \
+            zlib1g-dev
 
-      - name: Force Version and Build
+      - name: Install Python Build Tools
         run: |
-          # Sicherheits-Check: Falls die Version fehlt, schreibe sie hart in die Datei
-          sed -i '/^\[app\]/a version = 1.1.0' buildozer.spec
-          # Entferne eventuelle doppelte Versions-Einträge
-          sed -i '0,/version = 1.1.0/! {/^version = 1.1.0/d}' buildozer.spec
-          
-          # Starte den Build und akzeptiere alle Lizenzen
+          pip install --upgrade pip
+          pip install "Cython<3.0" buildozer-remote buildozer kivy==2.3.0
+
+      - name: Build with Buildozer
+        run: |
+          # Wir erzwingen die Akzeptanz der Android SDK Lizenzen
           yes | buildozer android debug
         env:
+          # Verhindert Fehler durch Root-Berechtigungen im Runner
           BUILDOZER_ALLOW_ORG_NAME_START: 1
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Vortex-Lotto-V1-1-0
+          name: package
           path: bin/*.apk
