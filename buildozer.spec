@@ -6,33 +6,29 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,ttf,otf,json,txt,md
 version = 1.0.0
 
-# OPTIMIERUNG: Cython und hostpython3 explizit für Stabilität
-requirements = python3,kivy==2.3.0,kivymd==1.2.0,pillow,requests,chardet
+# Optimierte Requirements für Stabilität
+requirements = python3,kivy==2.3.0,kivymd==1.2.0,pillow,requests,chardet,certifi
 
 orientation = portrait
 fullscreen = 1
 
-# OPTIMIERUNG: API 34 benötigt oft Java 17 (im Workflow bereits gesetzt)
+# Android Konfiguration für API 34
 android.api = 34
 android.minapi = 21
-# NDK 25b ist gut, aber 25c ist oft stabiler für API 34
-android.ndk = 
+android.ndk = 25b
 android.ndk_api = 21
-android.archs = arm64-v8a,armeabi-v7a
+android.archs = arm64-v8a, armeabi-v7a
+android.allow_backup = True
 
-# WICHTIG: Für Tests in GitHub Actions erst mal auf 'apk' lassen. 
-# 'aab' brauchst du nur für den Play Store Upload.
-android.release_artifact = apk
-
-# Berechtigungen
-android.permissions = INTERNET
-
+# Wichtig für KivyMD & Google Play Standards
 android.enable_androidx = True
-# Multidex ist bei KivyMD oft nötig
 android.multidex = True
 
-# ACHTUNG: Deaktiviere das Signieren für den ersten Build in GitHub Actions!
-# Wenn du kein Keystore-File im Repo hast, bricht der Build sofort ab.
+# Erstmal APK für Tests (AAB nur für Play Store Release)
+android.release_artifact = apk
+android.permissions = INTERNET
+
+# Deaktiviere Signierung für CI-Builds (verhindert File-not-found Fehler)
 android.skip_update_check = False
 android.accept_sdk_license = True
 
@@ -41,5 +37,5 @@ log_level = 2
 warn_on_root = 1
 
 [android]
-# Hilft gegen Speicherfehler während des Kompilierens
+# Speicheroptimierung beim Kompilieren
 android.extra_args = --enable-optimizations
