@@ -7,7 +7,7 @@ source.include_exts = py,png,jpg,kv,atlas,ttf,otf,json,txt,md
 version = 1.0.0
 
 # OPTIMIERUNG: Cython und hostpython3 explizit für Stabilität
-requirements = python3,kivy==2.3.0,kivymd==1.2.0,pillow
+requirements = python3,kivy==2.3.0,kivymd==1.2.0,pillow,requests,chardet
 
 orientation = portrait
 fullscreen = 1
