@@ -5,7 +5,7 @@ package.domain = org.senci33
 source.dir = .
 version = 1.0.0
 
-# Anforderungen (keine Leerzeichen nach Kommas!)
+# Anforderungen (KEINE Leerzeichen nach Kommas!)
 requirements = python3,kivy==2.3.0,requests,certifi,openssl
 
 android.api = 34
