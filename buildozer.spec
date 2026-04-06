@@ -1,30 +1,28 @@
 [app]
-# (str) Title of your application
 title = Vortex Lotto
-# (str) Package name
 package.name = vortexlotto
-# (str) Package domain
 package.domain = org.senci33
 
-# (list) Application requirements
-# WICHTIG: Cython hier NICHT eintragen (wird über den Workflow installiert)
+# Keine Leerzeichen nach den Kommas!
 requirements = python3,kivy==2.3.0,requests,certifi,openssl
 
-# (int) Android API to use
+# Android-Konfiguration
 android.api = 34
-# (int) Minimum API your APK will support
 android.minapi = 21
-# (str) Android NDK version to use (25b ist am stabilsten für CI)
-android.ndk = 25b
 
-# (list) Architectures to build for (arm64-v8a ist Standard für moderne Handys)
+# NDK 25b ist zwingend für Ubuntu 24.04 (höhere Versionen verursachen glibc-Fehler)
+android.ndk = 25b
+android.ndk_path = 
+
+# Architektur für moderne Geräte
 android.archs = arm64-v8a
 
-# (bool) Copy libs to the setup (behebt oft "Broken Pipe" Fehler)
+# Wichtig für den Erfolg des Builds
+android.accept_sdk_license = True
 android.copy_libs = 1
 
-# (int) Log level (2 für detaillierte Fehlersuche im CI)
-log_level = 2
-
-# (bool) Allow to run buildozer as root (erforderlich für GitHub Actions)
+# CI-spezifische Erlaubnis
 buildozer.allow_org_name_start = 1
+
+# Log-Level für detaillierte Fehleranalyse im GitHub-Log
+log_level = 2
