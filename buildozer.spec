@@ -1,41 +1,27 @@
 [app]
-title = Vortex Karma
-package.name = vortexkarma
-package.domain = org.karma
+title = Vortex Lotto
+package.name = vortexlotto
+package.domain = org.senci33
 source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,ttf,otf,json,txt,md
-version = 1.0.0
+source.include_exts = py,png,jpg,kv,atlas,json
 
-# Optimierte Requirements für Stabilität
-requirements = python3,kivy==2.3.0,kivymd==1.2.0,pillow,requests,chardet,certifi
+# WICHTIG: Alle Pakete für SSL und API
+requirements = python3,kivy==2.3.0,requests,urllib3,certifi,idna,openssl
 
 orientation = portrait
-fullscreen = 1
-
-# Android Konfiguration für API 34
-android.api = 34
-android.minapi = 21
-android.ndk = 25b
-android.ndk_api = 21
+fullscreen = 0
 android.archs = arm64-v8a, armeabi-v7a
 android.allow_backup = True
 
-# Wichtig für KivyMD & Google Play Standards
-android.enable_androidx = True
-android.multidex = True
-
-# Erstmal APK für Tests (AAB nur für Play Store Release)
-android.release_artifact = apk
-android.permissions = INTERNET
-
-# Deaktiviere Signierung für CI-Builds (verhindert File-not-found Fehler)
-android.skip_update_check = False
+# WICHTIG: Lizenzen automatisch akzeptieren (Löst GitHub-Fehler)
 android.accept_sdk_license = True
+android.api = 34
+android.minapi = 21
+android.sdk = 34
+
+# Berechtigungen für Internet (ANU API)
+android.permissions = INTERNET
 
 [buildozer]
 log_level = 2
 warn_on_root = 1
-
-[android]
-# Speicheroptimierung beim Kompilieren
-android.extra_args = --enable-optimizations
