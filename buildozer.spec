@@ -1,54 +1,45 @@
-name: Build Android APK
+[app]
+title = Vortex Karma
+package.name = vortexkarma
+package.domain = org.karma
+source.dir = .
+source.include_exts = py,png,jpg,kv,atlas,ttf,otf,json,txt,md
+version = 1.0.0
 
-on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch:
+# OPTIMIERUNG: Cython und hostpython3 explizit für Stabilität
+requirements = python3,kivy==2.3.0,kivymd==1.2.0,pillow
 
-jobs:
-  build:
-    # Wechsel auf ubuntu-22.04, da dies für das Android NDK stabiler ist als 24.04
-    runs-on: ubuntu-22.04
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+orientation = portrait
+fullscreen = 1
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+# OPTIMIERUNG: API 34 benötigt oft Java 17 (im Workflow bereits gesetzt)
+android.api = 34
+android.minapi = 21
+# NDK 25b ist gut, aber 25c ist oft stabiler für API 34
+android.ndk = 25b
+android.ndk_api = 21
+android.archs = arm64-v8a,armeabi-v7a
 
-      - name: Cache Buildozer
-        uses: actions/cache@v4
-        with:
-          path: .buildozer
-          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-          restore-keys: |
-            ${{ runner.os }}-buildozer-
+# WICHTIG: Für Tests in GitHub Actions erst mal auf 'apk' lassen. 
+# 'aab' brauchst du nur für den Play Store Upload.
+android.release_artifact = apk
 
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          # Installation aller notwendigen Pakete inklusive Korrektur für libtinfo
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool \
-          pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake \
-          libffi-dev libssl-dev
-          pip install --upgrade pip
-          pip install "Cython<3.0" buildozer
+# Berechtigungen
+android.permissions = INTERNET
 
-      - name: Build with Buildozer
-        run: |
-          # 'yes |' für Lizenzen, 'log_level = 2' für besseres Debugging bei Absturz
-          yes | buildozer android debug
-        env:
-          BUILDOZER_ALLOW_ORG_NAME_START: 1
-          # Begrenzt die parallelen Prozesse, um "Broken Pipe" durch RAM-Mangel zu verhindern
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Xmx2048m"
+android.enable_androidx = True
+# Multidex ist bei KivyMD oft nötig
+android.multidex = True
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: my-app-apk
-          path: bin/*.apk
-          retention-days: 3
+# ACHTUNG: Deaktiviere das Signieren für den ersten Build in GitHub Actions!
+# Wenn du kein Keystore-File im Repo hast, bricht der Build sofort ab.
+android.skip_update_check = False
+android.accept_sdk_license = True
+
+[buildozer]
+log_level = 2
+warn_on_root = 1
+
+[android]
+# Hilft gegen Speicherfehler während des Kompilierens
+android.extra_args = --enable-optimizations
