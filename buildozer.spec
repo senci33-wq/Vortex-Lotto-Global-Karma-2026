@@ -1,56 +1,18 @@
-name: Build Android APK
+[app]
+title = Vortex Lotto
+package.name = vortexlotto
+package.domain = org.senci33
+source.dir = .
+version = 1.0.0
 
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+# Anforderungen (keine Leerzeichen nach Kommas!)
+requirements = python3,kivy==2.3.0,requests,certifi,openssl
 
-env:
-  # Behebt die Node.js Warnung
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
-jobs:
-  build:
-    runs-on: ubuntu-24.04
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential git python3-dev cmake libffi-dev libssl-dev \
-            zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev \
-            libsqlite3-dev gawk texinfo libasound2-dev libsdl2-dev \
-            libncurses6 libncurses-dev libtinfo6
-
-          # Fix für libncurses5-Abhängigkeit des Android NDK auf Ubuntu 24.04
-          sudo ln -sf /usr/lib/x86_64-linux-gnu/libncurses.so.6 /usr/lib/x86_64-linux-gnu/libncurses.so.5
-          sudo ln -sf /usr/lib/x86_64-linux-gnu/libtinfo.so.6 /usr/lib/x86_64-linux-gnu/libtinfo.so.5
-
-      - name: Install Python Build Tools
-        run: |
-          python -m pip install --upgrade pip
-          pip install "Cython<3.0" buildozer kivy==2.3.0
-
-      - name: Build with Buildozer
-        run: |
-          # Ordner vorab erstellen
-          mkdir -p .buildozer
-          # 'yes' akzeptiert alle Lizenzen automatisch
-          yes | buildozer -v android debug
-        env:
-          BUILDOZER_ALLOW_ORG_NAME_START: 1
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Vortex-Lotto-APK
-          path: bin/*.apk
+android.api = 34
+android.minapi = 21
+android.ndk = 25b
+android.archs = arm64-v8a
+android.accept_sdk_license = True
+android.copy_libs = 1
+buildozer.allow_org_name_start = 1
+log_level = 2
