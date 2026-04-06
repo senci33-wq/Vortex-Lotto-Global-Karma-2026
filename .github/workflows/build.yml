@@ -3,12 +3,13 @@ name: Build Android APK
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch: # Erlaubt es dir, den Build auch manuell zu starten
+  workflow_dispatch:
 
 jobs:
   build:
-    # Wir fixieren die Version auf 22.04 für bessere Kompatibilität mit Buildozer/NDK
+    # Wechsel auf ubuntu-22.04, da dies für das Android NDK stabiler ist als 24.04
     runs-on: ubuntu-22.04
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,7 +19,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      # Cache für Buildozer-Verzeichnisse (spart ca. 10-15 Minuten pro Build)
       - name: Cache Buildozer
         uses: actions/cache@v4
         with:
@@ -30,26 +30,25 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          # Korrektur: libtinfo6 statt libtinfo5 für modernere Runner
+          # Installation aller notwendigen Pakete inklusive Korrektur für libtinfo
           sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool \
           pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake \
           libffi-dev libssl-dev
           pip install --upgrade pip
-          # Cython < 3.0 ist zwingend für aktuelle Kivy/Buildozer Stabilität
           pip install "Cython<3.0" buildozer
 
       - name: Build with Buildozer
         run: |
-          # 'yes |' akzeptiert automatisch alle Android-Lizenzen
+          # 'yes |' für Lizenzen, 'log_level = 2' für besseres Debugging bei Absturz
           yes | buildozer android debug
         env:
-          # Verhindert Fehler bei bestimmten App-Namen in CI-Umgebungen
           BUILDOZER_ALLOW_ORG_NAME_START: 1
+          # Begrenzt die parallelen Prozesse, um "Broken Pipe" durch RAM-Mangel zu verhindern
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Xmx2048m"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: my-app-apk
-          # Der Pfad stellt sicher, dass die .apk Datei gefunden wird
           path: bin/*.apk
-          retention-days: 5 # Löscht alte Artefakte nach 5 Tagen, um Platz zu sparen
+          retention-days: 3
