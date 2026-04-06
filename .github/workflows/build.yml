@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 env:
+  # Behebt die Node.js Deprecation Warnung
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -42,18 +43,21 @@ jobs:
             zlib1g-dev \
             libsqlite3-dev \
             gawk \
-            texinfo
+            texinfo \
+            libasound2-dev \
+            libsdl2-dev
 
       - name: Install Python Build Tools
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
+          # Cython < 3.0 ist zwingend erforderlich für Kivy 2.3.0
           pip install "Cython<3.0" buildozer kivy==2.3.0
 
       - name: Build with Buildozer
         run: |
-          # Erstellt notwendige Ordner vorab, um Exit Code 100 zu vermeiden
+          # Verzeichnisse vorbereiten
           mkdir -p .buildozer
-          # Akzeptiert Android-Lizenzen automatisch und startet den Build
+          # 'yes' akzeptiert alle Android-SDK Lizenzen automatisch
           yes | buildozer -v android debug
         env:
           BUILDOZER_ALLOW_ORG_NAME_START: 1
@@ -61,5 +65,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Vortex-Lotto-APK
+          name: Vortex-Lotto-Package
           path: bin/*.apk
