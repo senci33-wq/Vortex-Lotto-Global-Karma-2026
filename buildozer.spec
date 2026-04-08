@@ -16,5 +16,7 @@ android.ndk = 25b
 android.archs = arm64-v8a
 android.accept_sdk_license = True
 android.copy_libs = 1
+android.release_artifact = aab
+
 buildozer.allow_org_name_start = 1
 log_level = 2
