@@ -9,7 +9,7 @@ version = 1.0.0
 requirements = python3,kivy==2.3.0,requests,urllib3,certifi,openssl,cython==3.0.10
 
 
-
+android.permissions = INTERNET
 android.api = 34
 android.minapi = 21
 android.ndk = 25b
