@@ -6,7 +6,8 @@ source.dir = .
 version = 1.0.0
 
 # Anforderungen (KEINE Leerzeichen nach Kommas!)
-requirements = python3,kivy==2.3.0,requests,certifi,openssl
+requirements = python3,kivy==2.3.0,requests,certifi,openssl,cython==3.0.10
+
 
 android.api = 34
 android.minapi = 21
