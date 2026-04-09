@@ -1,131 +1,134 @@
-import kivy
+import os, json, re, threading, requests, shutil
+import numpy as np
+from datetime import datetime
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
+from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.label import Label
 from kivy.uix.button import Button
-from kivy.uix.togglebutton import ToggleButton
+from kivy.uix.textinput import TextInput
 from kivy.uix.scrollview import ScrollView
-from kivy.metrics import dp, sp
-from kivy.clock import Clock
+from kivy.clock import Clock, mainthread
 from kivy.utils import get_color_from_hex
-import secrets, requests, threading, time, webbrowser, os
+from kivy.core.window import Window
 
-# SSL Zertifikate für Android laden
-import certifi
-os.environ['SSL_CERT_FILE'] = certifi.where()
+T = {"bg": "#020617", "ej": "#22d3ee", "lotto": "#10b981", "gs": "#fbbf24", "acc": "#f43f5e", "white": "#ffffff"}
 
-CLR_ACCENT = get_color_from_hex("#22d3ee")
-CLR_GOLD = get_color_from_hex("#fbbf24")
-
-LOTTERIEN = {
-    "6aus49": {"kugeln": 6, "max": 49, "zusatz": "SZ", "z_max": 9},
-    "Eurojackpot": {"kugeln": 5, "max": 50, "zusatz": "EZ", "z_max": 12},
-    "Glücksspirale": {"kugeln": 7, "max": 9, "zusatz": None},
-    "Bayern-Lotto": {"kugeln": 6, "max": 49, "zusatz": "BZ", "z_max": 10}
-}
-
-class QuantumLottoKarmaApp(App):
+class VortexUltraApp(App):
     def build(self):
-        self.is_drawing = False
-        self.current_lotto = "6aus49"
-        self.root = BoxLayout(orientation='vertical', padding=dp(15), spacing=dp(10))
+        Window.softinput_mode = 'pan'
+        Window.clearcolor = get_color_from_hex(T["bg"])
+        self.db_path = "vortex_master_db.json"
         
-        # Header
-        self.root.add_widget(Label(text="VORTEX LOTTO v1.1", font_size=sp(22), bold=True, color=CLR_ACCENT, size_hint_y=None, height=dp(50)))
-
-        # Lotterie-Auswahl
-        lotto_grid = GridLayout(cols=4, size_hint_y=None, height=dp(45), spacing=dp(5))
-        for l_name in LOTTERIEN.keys():
-            btn = ToggleButton(text=l_name, group="lotto", state="down" if l_name == "6aus49" else "normal", font_size=sp(10))
-            btn.bind(on_release=lambda x, n=l_name: setattr(self, 'current_lotto', n))
-            lotto_grid.add_widget(btn)
-        self.root.add_widget(lotto_grid)
-
-        # Kugel-Display
-        self.ball_row = BoxLayout(size_hint_y=None, height=dp(60), spacing=dp(5))
-        self.ball_labels = [Label(text="?", font_size=sp(26), bold=True, color=(0.4, 0.4, 0.4, 1)) for _ in range(7)]
-        for lbl in self.ball_labels: self.ball_row.add_widget(lbl)
-        self.root.add_widget(self.ball_row)
-
-        # Historie
-        self.history_list = BoxLayout(orientation='vertical', size_hint_y=None, spacing=dp(2))
-        self.history_list.bind(minimum_height=self.history_list.setter('height'))
-        scroll = ScrollView(size_hint_y=None, height=dp(100)); scroll.add_widget(self.history_list)
-        self.root.add_widget(scroll)
-
-        self.status_label = Label(text="System bereit", color=CLR_ACCENT, size_hint_y=None, height=dp(30))
-        self.root.add_widget(self.status_label)
-
-        # Start Button
-        self.start_btn = Button(text="ZIEHUNG STARTEN", background_color=get_color_from_hex("#0e7490"), bold=True, size_hint_y=None, height=dp(60))
-        self.start_btn.bind(on_release=self.start_draw)
-        self.root.add_widget(self.start_btn)
+        self.cf = {
+            "EJ": {"n": "Eurojackpot", "c": T["ej"], "mc": 5, "mm": 50, "ec": 2, "em": 12, "u": "https://www.lotto-bayern.de/eurojackpot/gewinnzahlen"},
+            "L649": {"n": "Lotto 6aus49", "c": T["lotto"], "mc": 6, "mm": 49, "ec": 1, "em": 9, "u": "https://www.lotto-bayern.de/lotto6aus49/gewinnzahlen"},
+            "GS": {"n": "Glücksspirale", "c": T["gs"], "mc": 7, "mm": 9, "ec": 0, "em": 0, "u": "https://www.lotto-bayern.de/gluecksspirale/gewinnzahlen"},
+            "FR": {"n": "Freiheit+", "c": T["ej"], "mc": 7, "mm": 38, "ec": 0, "em": 0, "u": "https://lotto.web.de/freiheitplus/zahlen-quoten"}
+        }
+        self.data = self.convert_db(self.load_raw())
         
-        return self.root
+        root = BoxLayout(orientation='vertical', padding=10, spacing=8)
+        head = BoxLayout(size_hint_y=None, height=60, spacing=10)
+        head.add_widget(Label(text="VORTEX SAFE V8.8", font_size='22sp', bold=True, color=get_color_from_hex(T["ej"])))
+        self.s_btn = Button(text="SYNC", size_hint_x=0.3, background_color=get_color_from_hex(T["acc"]), bold=True)
+        self.s_btn.bind(on_release=lambda x: self.sync())
+        head.add_widget(self.s_btn); root.add_widget(head)
 
-    def start_draw(self, *args):
-        if not self.is_drawing:
-            self.is_drawing = True
-            self.start_btn.disabled = True
-            for lbl in self.ball_labels: lbl.text = "?"; lbl.color = (0.4, 0.4, 0.4, 1)
-            threading.Thread(target=self.run_logic, daemon=True).start()
+        self.tp = TabbedPanel(do_default_tab=False, background_color=(0,0,0,0))
+        self.lbs, self.ips = {}, {}
 
-    def run_logic(self):
-        cfg = LOTTERIEN[self.current_lotto]
-        ergebnis = []
-        source = "Quanten-Zufall (ANU)"
-
-        try:
-            # 1. VERSUCH: ANU Quanten-API
-            r = requests.get("https://anu.edu.au", timeout=2.5)
-            data = r.json()['data']
+        for k, c in self.cf.items():
+            tab = TabbedPanelItem(text=k)
+            lay = BoxLayout(orientation='vertical', padding=[5, 10, 5, 5], spacing=10)
             
-            if self.current_lotto == "Eurojackpot":
-                # 5/50 + 2/12 (Sicher via secrets_sample für Unikat-Garantie innerhalb der Gruppen)
-                ergebnis = self.secure_sample(range(1, 51), 5) + self.secure_sample(range(1, 13), 2)
-            elif self.current_lotto == "Glücksspirale":
-                # 7 Stellen, Doppelte Ziffern explizit erlaubt (Modulo 10)
-                ergebnis = [d % 10 for d in data[:7]]
-            else:
-                ergebnis = self.secure_sample(range(1, cfg["max"]+1), cfg["kugeln"])
-        except:
-            # 2. FALLBACK: Kryptographischer System-Zufall (Offline)
-            source = "Sicherer Offline-Zufall"
-            if self.current_lotto == "Eurojackpot":
-                ergebnis = self.secure_sample(range(1, 51), 5) + self.secure_sample(range(1, 13), 2)
-            elif self.current_lotto == "Glücksspirale":
-                ergebnis = [secrets.randbelow(10) for _ in range(7)]
-            else:
-                ergebnis = self.secure_sample(range(1, cfg["max"]+1), cfg["kugeln"])
+            ctrl = BoxLayout(orientation='vertical', size_hint_y=None, height=130, spacing=8)
+            row = BoxLayout(size_hint_y=None, height=60, spacing=5)
+            self.ips[k] = TextInput(hint_text="Folge...", multiline=False, size_hint_x=0.8, font_size='18sp', padding=[10, 12, 10, 12])
+            a_btn = Button(text="+", size_hint_x=0.2, background_color=get_color_from_hex(T["lotto"]), bold=True)
+            a_btn.bind(on_release=lambda x, key=k: self.add(key))
+            row.add_widget(self.ips[k]); row.add_widget(a_btn)
+            
+            c_btn = Button(text="QUANTUM ANALYSE", size_hint_y=None, height=60, background_color=get_color_from_hex(c["c"]), bold=True)
+            c_btn.bind(on_release=lambda x, key=k: self.calc(key))
+            ctrl.add_widget(row); ctrl.add_widget(c_btn); lay.add_widget(ctrl)
 
-        Clock.schedule_once(lambda dt: setattr(self.status_label, 'text', f"Quelle: {source}"))
-        for i, val in enumerate(ergebnis):
-            time.sleep(0.2)
-            Clock.schedule_once(lambda dt, idx=i, v=val: self.update_ball_ui(idx, v))
-        Clock.schedule_once(lambda dt: self.finalize(ergebnis))
+            sc = ScrollView(size_hint_y=1.0)
+            self.lbs[k] = Label(text="Bereit.", halign='center', valign='top', markup=True, size_hint_y=None)
+            self.lbs[k].bind(texture_size=self.lbs[k].setter('size'))
+            sc.add_widget(self.lbs[k]); lay.add_widget(sc); tab.add_widget(lay); self.tp.add_widget(tab)
 
-    def secure_sample(self, pop, k):
-        # Wählt k eindeutige Elemente aus Population, bleibt unsortiert
-        p = list(pop); res = []
-        for _ in range(k):
-            c = secrets.choice(p); res.append(c); p.remove(c)
-        return res
+        root.add_widget(self.tp)
+        return root
 
-    def update_ball_ui(self, idx, val):
-        if idx < len(self.ball_labels):
-            self.ball_labels[idx].text = str(val)
-            # Eurozahlen (EZ) gold hervorheben
-            if self.current_lotto == "Eurojackpot" and idx >= 5:
-                self.ball_labels[idx].color = CLR_GOLD
-            else:
-                self.ball_labels[idx].color = (1, 1, 1, 1)
+    def load_raw(self):
+        if os.path.exists(self.db_path):
+            with open(self.db_path, "r") as f: return json.load(f)
+        return {}
 
-    def finalize(self, res):
-        self.is_drawing = False
-        self.start_btn.disabled = False
-        h_text = f"{self.current_lotto}: " + ", ".join(map(str, res))
-        self.history_list.add_widget(Label(text=h_text, size_hint_y=None, height=dp(20), font_size=sp(10)), index=len(self.history_list.children))
+    def convert_db(self, raw):
+        games = raw.get("games", {k: [] for k in self.cf})
+        for gk in games:
+            for entry in games[gk]:
+                if "main" in entry: entry["m"] = entry.pop("main")
+                if "extra" in entry: entry["e"] = entry.pop("extra")
+        return games
 
-if __name__ == '__main__':
-    QuantumLottoKarmaApp().run()
+    def add(self, k):
+        t = self.ips[k].text.strip()
+        try:
+            n = [int(x) for x in re.split(r'[|,\s;]+', t) if x.isdigit()]
+            if len(n) >= self.cf[k]["mc"]:
+                self.data[k].insert(0, {"m": n[:self.cf[k]["mc"]], "e": n[self.cf[k]["mc"]:]})
+                self.save_db(); self.ips[k].text = ""; self.ips[k].focus = False
+                self.lbs[k].text = "[color=#10b981]Gespeichert![/color]"
+        except: pass
+
+    def save_db(self):
+        with open(self.db_path, "w") as f: json.dump({"games": self.data}, f, indent=4)
+
+    def sync(self):
+        self.s_btn.text = "..."; threading.Thread(target=self.f_task, daemon=True).start()
+
+    def f_task(self):
+        h = {'User-Agent': 'Mozilla/5.0'}
+        for k, cfg in self.cf.items():
+            try:
+                r = requests.get(cfg["u"], headers=h, timeout=10)
+                p = r.text.split("Gezogene Reihenfolge")[1][:600] if "Gezogene Reihenfolge" in r.text else r.text
+                cl = [int(x) for x in re.findall(r'(\d{1,2})', p)]
+                if len(cl) >= cfg["mc"]:
+                    m, e = cl[:cfg["mc"]], cl[cfg["mc"]:cfg["mc"]+cfg["ec"]]
+                    if not any(x.get("m") == m for x in self.data[k]): self.data[k].insert(0, {"m": m, "e": e})
+            except: continue
+        self.done()
+
+    @mainthread
+    def done(self): self.save_db(); self.s_btn.text = "SYNC"
+
+    def calc(self, k): threading.Thread(target=self.logic, args=(k,), daemon=True).start()
+
+    def logic(self, k):
+        cfg = self.cf[k]; hist = self.data.get(k, [])
+        if not hist: self.upd(k, "Keine Daten."); return
+        mc, mm, ec, em = cfg["mc"], cfg["mm"], cfg["ec"], cfg["em"]
+        
+        mat = np.ones((mc, mm + 1))
+        peaks = []
+        for p in range(mc):
+            pd = [x["m"][p] for x in hist if "m" in x and len(x["m"]) > p]
+            if pd:
+                c = np.bincount(pd, minlength=mm+1)
+                mat[p] = 1.0 / (c + 0.7)
+            if k != "GS": mat[p, 0] = 0
+            peaks.append(int(np.argmax(mat[p])))
+
+        res = f"--- [b]{cfg['n']}[/b] ---\n"
+        res += f"HOT: [b][color={cfg['c']}]{' '.join(f'{x:02d}' for x in peaks)}[/color][/b]\n"
+        self.upd(k, res)
+
+    @mainthread
+    def upd(self, k, t): self.lbs[k].text = t
+
+if __name__ == "__main__":
+    VortexUltraApp().run()
