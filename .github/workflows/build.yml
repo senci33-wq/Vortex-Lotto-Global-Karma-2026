@@ -1,39 +1,41 @@
-name: Build Android APK
+name: Build Vortex Ultra APK
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    branches: [ "main" ]
+  workflow_dispatch: # Erlaubt manuelles Starten
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install System Dependencies
+
+      - name: Install Dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential git python3-dev cmake libffi-dev libssl-dev zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libsqlite3-dev gawk texinfo libasound2-dev libsdl2-dev libncurses6 libncurses-dev libtinfo6
-          sudo ln -sf /usr/lib/x86_64-linux-gnu/libncurses.so.6 /usr/lib/x86_64-linux-gnu/libncurses.so.5
-          sudo ln -sf /usr/lib/x86_64-linux-gnu/libtinfo.so.6 /usr/lib/x86_64-linux-gnu/libtinfo.so.5
-      - name: Install Python Build Tools
-        run: |
+          sudo apt update
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev libbz2-dev
           pip install --upgrade pip
-          pip install "Cython<3.0" buildozer kivy==2.3.0
-      - name: Build with Buildozer
+          pip install buildozer cython==0.29.33 kivy
+
+      - name: Build with Buildozer (The Fix)
         run: |
-          mkdir -p .buildozer
-          yes | buildozer -v android debug
+          # Wir erzwingen die Akzeptanz aller Lizenzen und nutzen den Silent-Mode
+          yes | buildozer android debug
         env:
+          # Verhindert Abbrüche bei bestimmten Namen oder Root-Warnungen
           BUILDOZER_ALLOW_ORG_NAME_START: 1
-      - name: Upload APK
+          BUILDOZER_WARN_ON_ROOT: 0
+
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Vortex-Lotto-APK
+          name: Vortex-Ultra-Debug-APK
           path: bin/*.apk
