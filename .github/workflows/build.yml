@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04 # Die stabilste Version für Buildozer
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Code
@@ -26,7 +26,7 @@ jobs:
           java-version: '17'
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+          uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -37,20 +37,17 @@ jobs:
           pip install --upgrade pip
           pip install buildozer cython==0.29.33 kivy
 
-      - name: Build APK (Debug)
+      - name: Build APK and AAB
         run: |
           unset ANDROID_HOME
           unset ANDROID_NDK_HOME
+          # Zuerst das APK bauen
           yes | buildozer -v android debug
+          # Dann das AAB bauen (Der korrekte Befehl!)
+          yes | buildozer -v android aab debug
         env:
           BUILDOZER_ALLOW_ORG_NAME_START: 1
-
-      - name: Build AAB (Release-Format)
-        run: |
-          # Wir schalten im Flug auf AAB um
-          yes | buildozer android aab debug
-        env:
-          BUILDOZER_ALLOW_ORG_NAME_START: 1
+          BUILDOZER_WARN_ON_ROOT: 0
 
       - name: Upload All Installers
         uses: actions/upload-artifact@v4
