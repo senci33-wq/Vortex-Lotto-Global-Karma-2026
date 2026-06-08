@@ -128,7 +128,7 @@ class VortexUltraApp(App):
         if ec > 0:
             emat = np.ones((ec, em + 1))
             for p in range(ec):
-                ed = [x["e"][p] for x in hist if "e" in x and len(x["e"]) > p]
+                ed = [x["e"][p] for x in hist if isinstance(x.get("e"), (list, tuple)) and len(x["e"]) > p]
                 if ed:
                     c = np.bincount(ed, minlength=em+1)
                     emat[p] = 1.0 / (c + 0.7)
