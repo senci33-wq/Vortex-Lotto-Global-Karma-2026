@@ -18,6 +18,7 @@ class VortexUltraApp(App):
     def build(self):
         Window.softinput_mode = 'pan'
         Window.clearcolor = get_color_from_hex(T["bg"])
+        self.icon = "icon.png"
         self.db_path = "vortex_master_db.json"
         
         self.cf = {
@@ -123,8 +124,21 @@ class VortexUltraApp(App):
             if k != "GS": mat[p, 0] = 0
             peaks.append(int(np.argmax(mat[p])))
 
+        e_peaks = []
+        if ec > 0:
+            emat = np.ones((ec, em + 1))
+            for p in range(ec):
+                ed = [x["e"][p] for x in hist if "e" in x and len(x["e"]) > p]
+                if ed:
+                    c = np.bincount(ed, minlength=em+1)
+                    emat[p] = 1.0 / (c + 0.7)
+                emat[p, 0] = 0
+                e_peaks.append(int(np.argmax(emat[p])))
+
         res = f"--- [b]{cfg['n']}[/b] ---\n"
         res += f"HOT: [b][color={cfg['c']}]{' '.join(f'{x:02d}' for x in peaks)}[/color][/b]\n"
+        if e_peaks:
+            res += f"EURO: [b][color={cfg['c']}]{' '.join(f'{x:02d}' for x in e_peaks)}[/color][/b]\n"
         self.upd(k, res)
 
     @mainthread
