@@ -83,7 +83,7 @@ class VortexUltraApp(App):
         lay.add_widget(g_btn)
 
         sc = ScrollView(size_hint_y=1.0)
-        self.custom_lb = Label(text="Beispiel: 1-50 (5 Zahlen), 0-9 (7 Zusatzzahlen), mit/ohne Wiederholung.", halign='left', valign='top', markup=True, size_hint_y=None)
+        self.custom_lb = Label(text="Beispiel: 1-50 (5 Zahlen), optional 0-9 (7 Zusatzzahlen), mit/ohne Wiederholung.", halign='left', valign='top', markup=True, size_hint_y=None)
         self.custom_lb.bind(texture_size=self.custom_lb.setter('size'))
         sc.add_widget(self.custom_lb); lay.add_widget(sc)
         tab.add_widget(lay)
@@ -226,7 +226,7 @@ class VortexUltraApp(App):
         return [int(x) for x in rng.choice(np.arange(vmin, vmax + 1), size=count, replace=False).tolist()]
 
     def format_nums(self, nums, vmax):
-        width = max(1, len(str(max(nums))) if nums else len(str(max(vmax, 0))))
+        width = max(1, len(str(max(nums))) if nums else len(str(vmax)))
         return " ".join(f"{x:0{width}d}" for x in nums)
 
     @mainthread
