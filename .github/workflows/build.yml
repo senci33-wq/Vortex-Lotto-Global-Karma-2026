@@ -5,6 +5,9 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -62,3 +65,20 @@ jobs:
           name: Vortex-Ultra-AAB
           path: bin/*.aab
           if-no-files-found: error
+
+      - name: Prepare latest release files
+        run: |
+          APK_FILE=$(ls -t bin/*.apk | head -n1)
+          AAB_FILE=$(ls -t bin/*.aab | head -n1)
+          cp "$APK_FILE" bin/Vortex-Ultra-latest.apk
+          cp "$AAB_FILE" bin/Vortex-Ultra-latest.aab
+
+      - name: Publish latest release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: latest
+          name: Vortex Ultra Latest Build
+          body: Automatisch aktualisierte neueste APK/AAB Version aus dem main-Branch.
+          allowUpdates: true
+          replacesArtifacts: true
+          artifacts: bin/Vortex-Ultra-latest.apk,bin/Vortex-Ultra-latest.aab
