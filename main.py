@@ -196,7 +196,7 @@ class VortexUltraApp(App):
             e_max = int(self.custom_inputs["e_max"].text)
             e_count = int(self.custom_inputs["e_count"].text)
             e_repeat = self.custom_inputs["e_repeat"].active
-        except:
+        except (ValueError, KeyError, AttributeError):
             self.upd_custom("[color=#f43f5e]Bitte gültige Zahlen eingeben.[/color]")
             return
 
@@ -218,7 +218,6 @@ class VortexUltraApp(App):
         if count == 0: return []
         if vmin > vmax: raise ValueError("Min darf nicht größer als Max sein.")
         span = vmax - vmin + 1
-        if span <= 0: raise ValueError("Ungültiger Bereich.")
         if not repeat and count > span:
             raise ValueError("Ohne Wiederholung dürfen nicht mehr Zahlen als Bereichsgröße gewählt werden.")
         rng = np.random.default_rng()
@@ -227,7 +226,7 @@ class VortexUltraApp(App):
         return [int(x) for x in rng.choice(np.arange(vmin, vmax + 1), size=count, replace=False).tolist()]
 
     def format_nums(self, nums, vmax):
-        width = max(1, len(str(max(vmax, 0))))
+        width = max(1, len(str(max(nums))) if nums else len(str(max(vmax, 0))))
         return " ".join(f"{x:0{width}d}" for x in nums)
 
     @mainthread
