@@ -68,8 +68,12 @@ jobs:
 
       - name: Prepare latest release files
         run: |
-          APK_FILE=$(ls -t bin/*.apk | head -n1)
-          AAB_FILE=$(ls -t bin/*.aab | head -n1)
+          APK_FILE=$(find bin -maxdepth 1 -type f -name '*.apk' -printf '%T@ %p\n' | sort -nr | head -n1 | cut -d' ' -f2-)
+          AAB_FILE=$(find bin -maxdepth 1 -type f -name '*.aab' -printf '%T@ %p\n' | sort -nr | head -n1 | cut -d' ' -f2-)
+          if [ -z "$APK_FILE" ] || [ -z "$AAB_FILE" ]; then
+            echo "APK/AAB Dateien wurden nicht gefunden."
+            exit 1
+          fi
           cp "$APK_FILE" bin/Vortex-Ultra-latest.apk
           cp "$AAB_FILE" bin/Vortex-Ultra-latest.aab
 
