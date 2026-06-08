@@ -85,6 +85,27 @@
             border-radius: 10px;
             font-weight: 700;
         }
+        .karma-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .project-list {
+            margin-top: 12px;
+            max-height: 280px;
+            overflow: auto;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 8px;
+            background: #0b1222;
+        }
+        .project-item {
+            padding: 8px 6px;
+            border-bottom: 1px solid #1e293b;
+        }
+        .project-item:last-child { border-bottom: none; }
+        .project-item a { color: #67e8f9; text-decoration: none; }
     </style>
 </head>
 <body>
@@ -119,6 +140,18 @@
         </div>
 
         <div class="card">
+            <h2>KARMA-Button (Herzstück)</h2>
+            <p class="muted">Projekte werden dynamisch aus <code>projekte.json</code> geladen.</p>
+            <div class="karma-controls">
+                <button id="karmaLoadBtn" class="secondary">KARMA-Projekte laden</button>
+                <select id="karmaCategory"></select>
+                <button id="karmaRandomBtn">Zufälliges Projekt öffnen</button>
+            </div>
+            <div id="karmaStatus" class="muted"></div>
+            <div id="karmaProjects" class="project-list"></div>
+        </div>
+
+        <div class="card">
             <h2>Download & Zähler</h2>
             <div class="links">
                 <a class="btn" href="https://github.com/senci33-wq/Vortex-Lotto-Global-Karma-2026/releases/latest" target="_blank" rel="noopener noreferrer">Neueste Version herunterladen</a>
@@ -140,6 +173,7 @@
 
     <script>
         const fmt = (n) => String(n).padStart(2, "0");
+        let karmaProjectsByCategory = {};
         const asBalls = (container, nums, color = "main") => {
             container.innerHTML = "";
             nums.forEach((n) => {
@@ -196,8 +230,67 @@
             }
         }
 
+        function cleanUrl(url) {
+            return String(url || "").trim();
+        }
+
+        function renderKarmaCategory() {
+            const category = document.getElementById("karmaCategory").value;
+            const list = karmaProjectsByCategory[category] || [];
+            const out = document.getElementById("karmaProjects");
+            if (!list.length) {
+                out.innerHTML = "<div class='project-item'>Keine Projekte verfügbar.</div>";
+                return;
+            }
+            out.innerHTML = list.map(([name, url]) =>
+                `<div class="project-item"><a href="${cleanUrl(url)}" target="_blank" rel="noopener noreferrer">${name}</a></div>`
+            ).join("");
+        }
+
+        async function loadKarmaProjects() {
+            const status = document.getElementById("karmaStatus");
+            const category = document.getElementById("karmaCategory");
+            status.textContent = "Lade KARMA-Projekte...";
+            try {
+                const response = await fetch("./projekte.json", { cache: "no-store" });
+                if (!response.ok) throw new Error("projekte.json nicht erreichbar");
+                const data = await response.json();
+                karmaProjectsByCategory = {};
+                Object.entries(data).forEach(([key, value]) => {
+                    if (Array.isArray(value)) {
+                        karmaProjectsByCategory[key] = value.filter((entry) =>
+                            Array.isArray(entry) && entry.length >= 2 && cleanUrl(entry[1]).startsWith("http")
+                        );
+                    }
+                });
+                const categories = Object.keys(karmaProjectsByCategory);
+                if (!categories.length) throw new Error("Keine gültigen Kategorien gefunden");
+                category.innerHTML = categories.map((k) => `<option value="${k}">${k}</option>`).join("");
+                renderKarmaCategory();
+                status.textContent = "KARMA-Projekte geladen.";
+            } catch (e) {
+                category.innerHTML = "";
+                document.getElementById("karmaProjects").innerHTML = "<div class='project-item'>KARMA-Projekte konnten nicht geladen werden.</div>";
+                status.textContent = "Fehler beim Laden der KARMA-Projekte.";
+            }
+        }
+
+        function openRandomKarmaProject() {
+            const category = document.getElementById("karmaCategory").value;
+            const list = karmaProjectsByCategory[category] || [];
+            if (!list.length) return;
+            const pick = list[Math.floor(Math.random() * list.length)];
+            const url = cleanUrl(pick[1]);
+            if (!url.startsWith("http")) return;
+            window.open(url, "_blank", "noopener,noreferrer");
+        }
+
         document.getElementById("generateBtn").addEventListener("click", generate);
+        document.getElementById("karmaLoadBtn").addEventListener("click", loadKarmaProjects);
+        document.getElementById("karmaCategory").addEventListener("change", renderKarmaCategory);
+        document.getElementById("karmaRandomBtn").addEventListener("click", openRandomKarmaProject);
         generate();
+        loadKarmaProjects();
     </script>
 </body>
 </html>
