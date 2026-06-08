@@ -230,8 +230,17 @@
             }
         }
 
-        function cleanUrl(url) {
+        function normalizeUrl(url) {
             return String(url || "").trim();
+        }
+
+        function isSafeHttpUrl(url) {
+            try {
+                const parsed = new URL(normalizeUrl(url));
+                return parsed.protocol === "http:" || parsed.protocol === "https:";
+            } catch {
+                return false;
+            }
         }
 
         function renderKarmaCategory() {
@@ -242,9 +251,22 @@
                 out.innerHTML = "<div class='project-item'>Keine Projekte verfügbar.</div>";
                 return;
             }
-            out.innerHTML = list.map(([name, url]) =>
-                `<div class="project-item"><a href="${cleanUrl(url)}" target="_blank" rel="noopener noreferrer">${name}</a></div>`
-            ).join("");
+            out.innerHTML = "";
+            list.forEach(([name, url]) => {
+                if (!isSafeHttpUrl(url)) return;
+                const row = document.createElement("div");
+                row.className = "project-item";
+                const link = document.createElement("a");
+                link.href = normalizeUrl(url);
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+                link.textContent = String(name || "Projekt");
+                row.appendChild(link);
+                out.appendChild(row);
+            });
+            if (!out.children.length) {
+                out.innerHTML = "<div class='project-item'>Keine gültigen Projekt-Links verfügbar.</div>";
+            }
         }
 
         async function loadKarmaProjects() {
@@ -259,7 +281,7 @@
                 Object.entries(data).forEach(([key, value]) => {
                     if (Array.isArray(value)) {
                         karmaProjectsByCategory[key] = value.filter((entry) =>
-                            Array.isArray(entry) && entry.length >= 2 && cleanUrl(entry[1]).startsWith("http")
+                            Array.isArray(entry) && entry.length >= 2 && isSafeHttpUrl(entry[1])
                         );
                     }
                 });
@@ -280,8 +302,8 @@
             const list = karmaProjectsByCategory[category] || [];
             if (!list.length) return;
             const pick = list[Math.floor(Math.random() * list.length)];
-            const url = cleanUrl(pick[1]);
-            if (!url.startsWith("http")) return;
+            const url = normalizeUrl(pick[1]);
+            if (!isSafeHttpUrl(url)) return;
             window.open(url, "_blank", "noopener,noreferrer");
         }
 
