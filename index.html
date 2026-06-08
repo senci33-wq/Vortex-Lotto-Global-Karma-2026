@@ -2,27 +2,317 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Datenschutz - Vortex Lotto Karma</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Vortex Lotto Global Karma 2026 – Browser Test</title>
     <style>
-        body { font-family: sans-serif; line-height: 1.6; padding: 20px; color: #333; max-width: 800px; margin: auto; }
-        h1 { color: #22d3ee; }
+        :root {
+            --bg: #020617;
+            --card: #0f172a;
+            --text: #e2e8f0;
+            --primary: #22d3ee;
+            --accent: #10b981;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(180deg, #020617 0%, #0b1120 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px 16px 32px;
+        }
+        h1 { color: var(--primary); margin-bottom: 8px; }
+        .muted { color: #94a3b8; margin-top: 0; }
+        .card {
+            background: var(--card);
+            border: 1px solid #1e293b;
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        label { display: block; font-size: 0.92rem; margin-bottom: 6px; color: #cbd5e1; }
+        input, select, button {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid #334155;
+            background: #0b1222;
+            color: var(--text);
+            padding: 10px;
+        }
+        button {
+            background: #082f49;
+            border-color: #155e75;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        button.secondary {
+            background: #052e16;
+            border-color: #166534;
+        }
+        .numbers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .ball {
+            min-width: 42px;
+            text-align: center;
+            padding: 10px 12px;
+            border-radius: 999px;
+            font-weight: 700;
+            background: #083344;
+            border: 1px solid #155e75;
+            color: #cffafe;
+        }
+        .links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+        a.btn {
+            display: inline-block;
+            background: #0f766e;
+            color: white;
+            text-decoration: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+        .karma-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .project-list {
+            margin-top: 12px;
+            max-height: 280px;
+            overflow: auto;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 8px;
+            background: #0b1222;
+        }
+        .project-item {
+            padding: 8px 6px;
+            border-bottom: 1px solid #1e293b;
+        }
+        .project-item:last-child { border-bottom: none; }
+        .project-item a { color: #67e8f9; text-decoration: none; }
     </style>
 </head>
 <body>
-    <h1>Datenschutzerklärung</h1>
-    <p><strong>Projekt:</strong> Vortex Lotto Global Karma 2026</p>
-    <p>Diese App ist ein Non-Profit-Projekt zur Förderung von Spendenbereitschaft.</p>
-    
-    <h2>1. Datenerhebung</h2>
-    <p>Die App erhebt, speichert oder überträgt keinerlei personenbezogene Daten des Nutzers. Es gibt keine Registrierung und kein Tracking.</p>
-    
-    <h2>2. Drittanbieter-Dienste</h2>
-    <p>Die App nutzt die öffentliche API der ANU (Australian National University), um echte Quantenzufallszahlen zu generieren. Hierbei wird lediglich eine technische Anfrage an den Server der ANU gestellt. Es werden keine Nutzerprofile erstellt.</p>
-    
-    <h2>3. Externe Links</h2>
-    <p>Durch Klicken auf den "KARMA"-Button wird der Nutzer zu externen Webseiten von Spendenorganisationen weitergeleitet. Für den Inhalt dieser Seiten sind die jeweiligen Betreiber verantwortlich.</p>
-    
-    <h2>4. Kontakt</h2>
-    <p>Bei Fragen wenden Sie sich an: vortex-lotto-feedback@gmail.com</p>
+    <div class="container">
+        <h1>Vortex Lotto Global Karma 2026</h1>
+        <p class="muted">Browser-Testversion (aktualisiert automatisch mit neuen Repository-Updates)</p>
+
+        <div class="card">
+            <h2>Quantum-Testgenerator</h2>
+            <div class="row">
+                <div>
+                    <label for="mainCount">Hauptzahlen</label>
+                    <input id="mainCount" type="number" min="1" max="10" value="5">
+                </div>
+                <div>
+                    <label for="mainMax">Max Hauptzahl</label>
+                    <input id="mainMax" type="number" min="10" max="99" value="50">
+                </div>
+                <div>
+                    <label for="extraCount">Zusatzzahlen</label>
+                    <input id="extraCount" type="number" min="0" max="5" value="2">
+                </div>
+                <div>
+                    <label for="extraMax">Max Zusatzzahl</label>
+                    <input id="extraMax" type="number" min="0" max="20" value="12">
+                </div>
+            </div>
+            <button id="generateBtn">Quantum-Zahlen holen</button>
+            <div id="status" class="muted"></div>
+            <div class="numbers" id="mainOut"></div>
+            <div class="numbers" id="extraOut"></div>
+        </div>
+
+        <div class="card">
+            <h2>KARMA-Button (Herzstück)</h2>
+            <p class="muted">Projekte werden dynamisch aus <code>projekte.json</code> geladen.</p>
+            <div class="karma-controls">
+                <button id="karmaLoadBtn" class="secondary">KARMA-Projekte laden</button>
+                <select id="karmaCategory"></select>
+                <button id="karmaRandomBtn">Zufälliges Projekt öffnen</button>
+            </div>
+            <div id="karmaStatus" class="muted"></div>
+            <div id="karmaProjects" class="project-list"></div>
+        </div>
+
+        <div class="card">
+            <h2>Download & Zähler</h2>
+            <div class="links">
+                <a class="btn" href="https://github.com/senci33-wq/Vortex-Lotto-Global-Karma-2026/releases/latest" target="_blank" rel="noopener noreferrer">Neueste Version herunterladen</a>
+            </div>
+            <p>
+                <img alt="Browser-Tests" src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fsenci33-wq.github.io%2FVortex-Lotto-Global-Karma-2026%2F&count_bg=%2322D3EE&title_bg=%23020517&icon=&icon_color=%23E7E7E7&title=Browser-Tests&edge_flat=false">
+            </p>
+            <p>
+                <img alt="Downloads gesamt" src="https://img.shields.io/github/downloads/senci33-wq/Vortex-Lotto-Global-Karma-2026/total?label=Downloads%20gesamt">
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>Datenschutz (Kurzfassung)</h2>
+            <p>Diese Browser-Testseite speichert keine Konten. Für Quantum-Zufallszahlen wird die öffentliche ANU-API abgefragt.</p>
+            <p>Kontakt: vortex-lotto-feedback@gmail.com</p>
+        </div>
+    </div>
+
+    <script>
+        const fmt = (n) => String(n).padStart(2, "0");
+        let karmaProjectsByCategory = {};
+        const asBalls = (container, nums, color = "main") => {
+            container.innerHTML = "";
+            nums.forEach((n) => {
+                const el = document.createElement("div");
+                el.className = "ball";
+                if (color === "extra") {
+                    el.style.background = "#064e3b";
+                    el.style.borderColor = "#15803d";
+                    el.style.color = "#d1fae5";
+                }
+                el.textContent = fmt(n);
+                container.appendChild(el);
+            });
+        };
+
+        async function getQuantumNumbers(length, max) {
+            const url = `https://qrng.anu.edu.au/API/jsonI.php?length=${length}&type=uint16`;
+            const response = await fetch(url, { cache: "no-store" });
+            if (!response.ok) throw new Error("Quantum API nicht erreichbar");
+            const data = await response.json();
+            if (!data.success || !Array.isArray(data.data)) throw new Error("Quantum API Antwort ungültig");
+            return data.data.map((v) => (v % max) + 1);
+        }
+
+        function fallbackNumbers(length, max) {
+            const out = [];
+            const rnd = crypto.getRandomValues(new Uint32Array(length));
+            for (let i = 0; i < length; i++) out.push((rnd[i] % max) + 1);
+            return out;
+        }
+
+        async function generate() {
+            const mainCount = Math.max(1, Number(document.getElementById("mainCount").value || 5));
+            const mainMax = Math.max(10, Number(document.getElementById("mainMax").value || 50));
+            const extraCount = Math.max(0, Number(document.getElementById("extraCount").value || 0));
+            const extraMax = Math.max(2, Number(document.getElementById("extraMax").value || 12));
+            const status = document.getElementById("status");
+            const mainOut = document.getElementById("mainOut");
+            const extraOut = document.getElementById("extraOut");
+
+            status.textContent = "Lade Quantum-Zufallszahlen...";
+            try {
+                const main = await getQuantumNumbers(mainCount, mainMax);
+                const extra = extraCount ? await getQuantumNumbers(extraCount, extraMax) : [];
+                asBalls(mainOut, main, "main");
+                asBalls(extraOut, extra, "extra");
+                status.textContent = "Erfolg: Quantum-Zahlen geladen.";
+            } catch (e) {
+                const main = fallbackNumbers(mainCount, mainMax);
+                const extra = extraCount ? fallbackNumbers(extraCount, extraMax) : [];
+                asBalls(mainOut, main, "main");
+                asBalls(extraOut, extra, "extra");
+                status.textContent = "Hinweis: Quantum-API nicht erreichbar, sichere Browser-Zufallszahlen wurden genutzt.";
+            }
+        }
+
+        function normalizeUrl(url) {
+            return String(url || "").trim();
+        }
+
+        function isSafeHttpUrl(url) {
+            try {
+                const parsed = new URL(normalizeUrl(url));
+                return parsed.protocol === "http:" || parsed.protocol === "https:";
+            } catch {
+                return false;
+            }
+        }
+
+        function renderKarmaCategory() {
+            const category = document.getElementById("karmaCategory").value;
+            const list = karmaProjectsByCategory[category] || [];
+            const out = document.getElementById("karmaProjects");
+            if (!list.length) {
+                out.innerHTML = "<div class='project-item'>Keine Projekte verfügbar.</div>";
+                return;
+            }
+            out.innerHTML = "";
+            list.forEach(([name, url]) => {
+                if (!isSafeHttpUrl(url)) return;
+                const row = document.createElement("div");
+                row.className = "project-item";
+                const link = document.createElement("a");
+                link.href = normalizeUrl(url);
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+                link.textContent = String(name || "Projekt");
+                row.appendChild(link);
+                out.appendChild(row);
+            });
+            if (!out.children.length) {
+                out.innerHTML = "<div class='project-item'>Keine gültigen Projekt-Links verfügbar.</div>";
+            }
+        }
+
+        async function loadKarmaProjects() {
+            const status = document.getElementById("karmaStatus");
+            const category = document.getElementById("karmaCategory");
+            status.textContent = "Lade KARMA-Projekte...";
+            try {
+                const response = await fetch("./projekte.json", { cache: "no-store" });
+                if (!response.ok) throw new Error("projekte.json nicht erreichbar");
+                const data = await response.json();
+                karmaProjectsByCategory = {};
+                Object.entries(data).forEach(([key, value]) => {
+                    if (Array.isArray(value)) {
+                        karmaProjectsByCategory[key] = value.filter((entry) =>
+                            Array.isArray(entry) && entry.length >= 2 && isSafeHttpUrl(entry[1])
+                        );
+                    }
+                });
+                const categories = Object.keys(karmaProjectsByCategory);
+                if (!categories.length) throw new Error("Keine gültigen Kategorien gefunden");
+                category.innerHTML = categories.map((k) => `<option value="${k}">${k}</option>`).join("");
+                renderKarmaCategory();
+                status.textContent = "KARMA-Projekte geladen.";
+            } catch (e) {
+                category.innerHTML = "";
+                document.getElementById("karmaProjects").innerHTML = "<div class='project-item'>KARMA-Projekte konnten nicht geladen werden.</div>";
+                status.textContent = "Fehler beim Laden der KARMA-Projekte.";
+            }
+        }
+
+        function openRandomKarmaProject() {
+            const category = document.getElementById("karmaCategory").value;
+            const list = karmaProjectsByCategory[category] || [];
+            if (!list.length) return;
+            const pick = list[Math.floor(Math.random() * list.length)];
+            const url = normalizeUrl(pick[1]);
+            if (!isSafeHttpUrl(url)) return;
+            window.open(url, "_blank", "noopener,noreferrer");
+        }
+
+        document.getElementById("generateBtn").addEventListener("click", generate);
+        document.getElementById("karmaLoadBtn").addEventListener("click", loadKarmaProjects);
+        document.getElementById("karmaCategory").addEventListener("change", renderKarmaCategory);
+        document.getElementById("karmaRandomBtn").addEventListener("click", openRandomKarmaProject);
+        generate();
+        loadKarmaProjects();
+    </script>
 </body>
 </html>

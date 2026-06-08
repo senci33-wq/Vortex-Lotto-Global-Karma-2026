@@ -7,6 +7,7 @@ from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
+from kivy.uix.checkbox import CheckBox
 from kivy.uix.scrollview import ScrollView
 from kivy.clock import Clock, mainthread
 from kivy.utils import get_color_from_hex
@@ -18,6 +19,7 @@ class VortexUltraApp(App):
     def build(self):
         Window.softinput_mode = 'pan'
         Window.clearcolor = get_color_from_hex(T["bg"])
+        self.icon = "icon.png"
         self.db_path = "vortex_master_db.json"
         
         self.cf = {
@@ -37,6 +39,7 @@ class VortexUltraApp(App):
 
         self.tp = TabbedPanel(do_default_tab=False, background_color=(0,0,0,0))
         self.lbs, self.ips = {}, {}
+        self.custom_inputs = {}
 
         for k, c in self.cf.items():
             tab = TabbedPanelItem(text=k)
@@ -58,8 +61,49 @@ class VortexUltraApp(App):
             self.lbs[k].bind(texture_size=self.lbs[k].setter('size'))
             sc.add_widget(self.lbs[k]); lay.add_widget(sc); tab.add_widget(lay); self.tp.add_widget(tab)
 
+        self.tp.add_widget(self.custom_tab())
         root.add_widget(self.tp)
         return root
+
+    def custom_tab(self):
+        tab = TabbedPanelItem(text="CUSTOM")
+        lay = BoxLayout(orientation='vertical', padding=[5, 10, 5, 5], spacing=8)
+
+        self.add_custom_number_row(lay, "Hauptzahlen min", "m_min", 1)
+        self.add_custom_number_row(lay, "Hauptzahlen max", "m_max", 50)
+        self.add_custom_number_row(lay, "Hauptzahlen Anzahl", "m_count", 5)
+        self.add_custom_check_row(lay, "Hauptzahlen mit Wiederholung", "m_repeat", False)
+        self.add_custom_number_row(lay, "Zusatzzahlen min", "e_min", 0)
+        self.add_custom_number_row(lay, "Zusatzzahlen max", "e_max", 9)
+        self.add_custom_number_row(lay, "Zusatzzahlen Anzahl", "e_count", 0)
+        self.add_custom_check_row(lay, "Zusatzzahlen mit Wiederholung", "e_repeat", False)
+
+        g_btn = Button(text="INDIVIDUELL GENERIEREN", size_hint_y=None, height=52, background_color=get_color_from_hex(T["acc"]), bold=True)
+        g_btn.bind(on_release=lambda x: self.calc_custom())
+        lay.add_widget(g_btn)
+
+        sc = ScrollView(size_hint_y=1.0)
+        self.custom_lb = Label(text="Beispiel: 1-50 (5 Zahlen), optional 0-9 (7 Zusatzzahlen), mit/ohne Wiederholung.", halign='left', valign='top', markup=True, size_hint_y=None)
+        self.custom_lb.bind(texture_size=self.custom_lb.setter('size'))
+        sc.add_widget(self.custom_lb); lay.add_widget(sc)
+        tab.add_widget(lay)
+        return tab
+
+    def add_custom_number_row(self, parent, text, key, default):
+        row = BoxLayout(size_hint_y=None, height=42, spacing=8)
+        row.add_widget(Label(text=text, halign='left', valign='middle'))
+        ti = TextInput(text=str(default), multiline=False, input_filter='int', size_hint_x=0.35)
+        self.custom_inputs[key] = ti
+        row.add_widget(ti)
+        parent.add_widget(row)
+
+    def add_custom_check_row(self, parent, text, key, default=False):
+        row = BoxLayout(size_hint_y=None, height=42, spacing=8)
+        row.add_widget(Label(text=text, halign='left', valign='middle'))
+        cb = CheckBox(active=default, size_hint=(None, None), size=(40, 40))
+        self.custom_inputs[key] = cb
+        row.add_widget(cb)
+        parent.add_widget(row)
 
     def load_raw(self):
         if os.path.exists(self.db_path):
@@ -108,6 +152,8 @@ class VortexUltraApp(App):
 
     def calc(self, k): threading.Thread(target=self.logic, args=(k,), daemon=True).start()
 
+    def calc_custom(self): threading.Thread(target=self.custom_logic, daemon=True).start()
+
     def logic(self, k):
         cfg = self.cf[k]; hist = self.data.get(k, [])
         if not hist: self.upd(k, "Keine Daten."); return
@@ -123,12 +169,71 @@ class VortexUltraApp(App):
             if k != "GS": mat[p, 0] = 0
             peaks.append(int(np.argmax(mat[p])))
 
+        e_peaks = []
+        if ec > 0:
+            emat = np.ones((ec, em + 1))
+            for p in range(ec):
+                ed = [x["e"][p] for x in hist if isinstance(x.get("e"), (list, tuple)) and len(x["e"]) > p]
+                if ed:
+                    c = np.bincount(ed, minlength=em+1)
+                    emat[p] = 1.0 / (c + 0.7)
+                emat[p, 0] = 0
+                e_peaks.append(int(np.argmax(emat[p])))
+
         res = f"--- [b]{cfg['n']}[/b] ---\n"
         res += f"HOT: [b][color={cfg['c']}]{' '.join(f'{x:02d}' for x in peaks)}[/color][/b]\n"
+        if e_peaks:
+            res += f"EURO: [b][color={cfg['c']}]{' '.join(f'{x:02d}' for x in e_peaks)}[/color][/b]\n"
         self.upd(k, res)
+
+    def custom_logic(self):
+        try:
+            m_min = int(self.custom_inputs["m_min"].text)
+            m_max = int(self.custom_inputs["m_max"].text)
+            m_count = int(self.custom_inputs["m_count"].text)
+            m_repeat = self.custom_inputs["m_repeat"].active
+            e_min = int(self.custom_inputs["e_min"].text)
+            e_max = int(self.custom_inputs["e_max"].text)
+            e_count = int(self.custom_inputs["e_count"].text)
+            e_repeat = self.custom_inputs["e_repeat"].active
+        except (ValueError, KeyError, AttributeError):
+            self.upd_custom("[color=#f43f5e]Bitte gültige Zahlen eingeben.[/color]")
+            return
+
+        try:
+            main_nums = self.pick_numbers(m_min, m_max, m_count, m_repeat)
+            extra_nums = self.pick_numbers(e_min, e_max, e_count, e_repeat) if e_count > 0 else []
+            res = "--- [b]Individuelle Auswahl[/b] ---\n"
+            res += f"MAIN ({m_min}-{m_max}, n={m_count}, Wiederholung={'Ja' if m_repeat else 'Nein'}): "
+            res += f"[b][color={T['ej']}]{self.format_nums(main_nums, m_max)}[/color][/b]\n"
+            if e_count > 0:
+                res += f"EXTRA ({e_min}-{e_max}, n={e_count}, Wiederholung={'Ja' if e_repeat else 'Nein'}): "
+                res += f"[b][color={T['lotto']}]{self.format_nums(extra_nums, e_max)}[/color][/b]\n"
+            self.upd_custom(res)
+        except ValueError as ex:
+            self.upd_custom(f"[color=#f43f5e]{str(ex)}[/color]")
+
+    def pick_numbers(self, vmin, vmax, count, repeat):
+        if count < 0: raise ValueError("Anzahl darf nicht negativ sein.")
+        if count == 0: return []
+        if vmin > vmax: raise ValueError("Min darf nicht größer als Max sein.")
+        span = vmax - vmin + 1
+        if not repeat and count > span:
+            raise ValueError("Ohne Wiederholung dürfen nicht mehr Zahlen als Bereichsgröße gewählt werden.")
+        rng = np.random.default_rng()
+        if repeat:
+            return [int(x) for x in rng.integers(vmin, vmax + 1, size=count).tolist()]
+        return [int(x) for x in rng.choice(np.arange(vmin, vmax + 1), size=count, replace=False).tolist()]
+
+    def format_nums(self, nums, vmax):
+        width = max(1, len(str(max(nums))) if nums else len(str(vmax)))
+        return " ".join(f"{x:0{width}d}" for x in nums)
 
     @mainthread
     def upd(self, k, t): self.lbs[k].text = t
+
+    @mainthread
+    def upd_custom(self, t): self.custom_lb.text = t
 
 if __name__ == "__main__":
     VortexUltraApp().run()

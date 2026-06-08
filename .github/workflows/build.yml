@@ -5,6 +5,9 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -26,7 +29,7 @@ jobs:
           java-version: '17'
 
       - name: Setup Python
-          uses: actions/setup-python@v5
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -49,8 +52,37 @@ jobs:
           BUILDOZER_ALLOW_ORG_NAME_START: 1
           BUILDOZER_WARN_ON_ROOT: 0
 
-      - name: Upload All Installers
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Vortex-Ultra-Builds
-          path: bin/
+          name: Vortex-Ultra-APK
+          path: bin/*.apk
+          if-no-files-found: error
+
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: Vortex-Ultra-AAB
+          path: bin/*.aab
+          if-no-files-found: error
+
+      - name: Prepare latest release files
+        run: |
+          APK_FILE=$(find bin -maxdepth 1 -type f -name '*.apk' -printf '%T@ %p\n' | sort -nr | head -n1 | cut -d' ' -f2-)
+          AAB_FILE=$(find bin -maxdepth 1 -type f -name '*.aab' -printf '%T@ %p\n' | sort -nr | head -n1 | cut -d' ' -f2-)
+          if [ -z "$APK_FILE" ] || [ -z "$AAB_FILE" ]; then
+            echo "APK/AAB Dateien wurden nicht gefunden."
+            exit 1
+          fi
+          cp "$APK_FILE" bin/Vortex-Ultra-latest.apk
+          cp "$AAB_FILE" bin/Vortex-Ultra-latest.aab
+
+      - name: Publish latest release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: latest
+          name: Vortex Ultra Latest Build
+          body: Automatisch aktualisierte neueste APK/AAB Version aus dem main-Branch.
+          allowUpdates: true
+          replacesArtifacts: true
+          artifacts: bin/Vortex-Ultra-latest.apk,bin/Vortex-Ultra-latest.aab
