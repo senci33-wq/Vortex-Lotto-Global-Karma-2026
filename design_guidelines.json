@@ -1,0 +1,161 @@
+{
+  "app_name": "Vortex Lotto Global Karma 2026",
+  "personality": "7 Dark-First Utility with 6 Glass / Luxe surfaces",
+  "personality_one_liner": "A deep space quantum command center that blends high-tech data visualization with an immersive cosmic atmosphere to inspire global harmony.",
+  "color": {
+    "surface": "#020617",
+    "onSurface": "#f8fafc",
+    "surfaceSecondary": "#0f172a",
+    "onSurfaceSecondary": "#cbd5e1",
+    "surfaceTertiary": "#1e293b",
+    "onSurfaceTertiary": "#94a3b8",
+    "surfaceInverse": "#f8fafc",
+    "onSurfaceInverse": "#020617",
+    "brand": "#22d3ee",
+    "brandPrimary": "#22d3ee",
+    "onBrandPrimary": "#020617",
+    "brandSecondary": "#10b981",
+    "onBrandSecondary": "#020617",
+    "brandTertiary": "#0891b2",
+    "onBrandTertiary": "#f8fafc",
+    "success": "#10b981",
+    "onSuccess": "#020617",
+    "warning": "#fbbf24",
+    "onWarning": "#020617",
+    "error": "#f43f5e",
+    "onError": "#f8fafc",
+    "info": "#38bdf8",
+    "onInfo": "#020617",
+    "border": "#1e293b",
+    "borderStrong": "#334155",
+    "divider": "#0f172a"
+  },
+  "typography": {
+    "displayFontFamily": "Rajdhani",
+    "textFontFamily": "IBM Plex Sans",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Generous padding around glass cards to emphasize the cosmic depth, tight spacing within metric grids for utility.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 6,
+    "md": 12,
+    "lg": 20,
+    "pill": 999
+  },
+  "shadow_tier": "0",
+  "navigation": "bottom_tabs",
+  "icon_set": "Ionicons",
+  "glassmorphism": {
+    "enabled": "true",
+    "do's": [
+      "Use glass overlay heavily on the Karma directory cards, top filter chips, and bottom tabs.",
+      "Add a frosted glass overlay with a brandTertiary tint behind the generated lottery balls to make them pop.",
+      "Ensure text on glass is fully readable by using a >=75% opacity dark tint base under the blur."
+    ],
+    "dont's": [
+      "Never apply glass to dense metric rows in the Analyse tab.",
+      "Do not blur primary CTA buttons; they should be solid to ground the interaction."
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Generator (Home)",
+      "purpose": "A quantum terminal to pick a lottery type and generate random numbers with cosmic flair.",
+      "states": {
+        "loading": "Centered glowing cyan spinner.",
+        "empty": "N/A - Defaults to Eurojackpot selection.",
+        "error": "Rose/Pink glass card stating 'Quantum-Verbindung fehlgeschlagen' with retry button."
+      },
+      "layout": "Use a segmented glass control at the top to select the lottery type. The center is a large atmospheric space (utilizing hero_background with heavy scrim) where generated numbers appear as glowing circles. The circles should use a translucent brandTertiary background, 1pt cyan border, and thick condensed Rajdhani typography. The bottom area contains a massive, solid 'QUANTUM ZIEHEN' CTA sticky above the safe area."
+    },
+    {
+      "name": "Analyse",
+      "purpose": "Statistical breakdown of hot/cold numbers from past draws.",
+      "states": {
+        "loading": "Skeleton rows reflecting data bars.",
+        "empty": "Illustration of an empty grid with text 'Keine Ziehungen vorhanden. Füge eine hinzu.'",
+        "error": "Inline error message on top of the list."
+      },
+      "layout": "Dark-First Utility layout. Use flat surfaceSecondary backgrounds for list rows. Display numbers in condensed Rajdhani fonts. Provide frequency charts using horizontal progress bars filled with emerald (brandSecondary) and cyan (brandPrimary) based on heat. Include a top section to manually input a past draw."
+    },
+    {
+      "name": "Karma Projekte",
+      "purpose": "A directory of charitable organizations grouped by region/category.",
+      "states": {
+        "loading": "Staggered skeleton cards.",
+        "empty": "Icon of earth with text 'Keine Projekte in dieser Kategorie gefunden.'",
+        "error": "Error card with retry."
+      },
+      "layout": "The header incorporates the karma_hero image with a top-to-bottom gradient scrim. Below the header, a sticky horizontal scrollable row of pill-shaped glass filter chips for categories. The main content is a 1-column list of glass cards. Each card contains the project name, category badge, and an external link icon. Generous vertical spacing between cards."
+    },
+    {
+      "name": "Vision / Über",
+      "purpose": "A manifesto page communicating the app's mission for global harmony, plus privacy info.",
+      "states": {
+        "loading": "Spinner.",
+        "empty": "N/A",
+        "error": "N/A"
+      },
+      "layout": "A scrollable, editorial-style screen embedded in a dark mode container. Features the vision_bg as a hero image with a dark scrim, followed by rich text blocks. Typography leads here: generous line height, Rajdhani for bold headings, IBM Plex Sans for body. Use dividers to separate the vision manifesto from the 'Datenschutz' (Privacy) section."
+    }
+  ],
+  "images": {
+    "hero_background": {
+      "url": "https://images.pexels.com/photos/6138036/pexels-photo-6138036.jpeg",
+      "alt": "A mesmerizing view of the starry night sky with a cosmic nebula effect"
+    },
+    "karma_hero": {
+      "url": "https://images.unsplash.com/photo-1656077217715-bdaeb06bd01f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzR8MHwxfHNlYXJjaHwyfHxwbGFuZXQlMjBlYXJ0aCUyMGdsb3dpbmclMjBzcGFjZXxlbnwwfHx8fDE3ODIxMDgzODl8MA&ixlib=rb-4.1.0&q=85",
+      "alt": "Planet earth glowing in space"
+    },
+    "vision_bg": {
+      "url": "https://images.pexels.com/photos/30547573/pexels-photo-30547573.jpeg",
+      "alt": "Abstract view of futuristic technology and quantum nodes"
+    }
+  },
+  "haptics": {
+    "tab_press": "light",
+    "lottery_type_change": "medium",
+    "quantum_ziehen_press": "heavy",
+    "number_reveal_staggered": "light",
+    "filter_chip_press": "light",
+    "karma_card_press": "medium"
+  },
+  "instructions_to_main_agent": [
+    "Ensure all text remains strictly in GERMAN as per the problem statement.",
+    "Implement the 'QUANTUM ZIEHEN' reveal with staggered animations using Reanimated (scaling up from 0 to 1 with an overshoot spring, fading in).",
+    "Do not use default system alerts. All modals/toasts must follow the cosmic dark theme.",
+    "For the lottery balls, use a combination of transparent fills (brandTertiary at 20% opacity) and 1pt borders (cyan/gold) to simulate a glowing UI.",
+    "The Karma screen's category filter chip row must be sticky beneath the header and visually distinct using glassmorphism.",
+    "For text placed over cosmic background images (Generator and Vision screens), the gradient-to-dark scrim pattern is MANDATORY (transparent to 80-90% surfaceInverse (#020617) at the bottom) to guarantee contrast.",
+    "Preserve the 4 required lottery types exactly: Eurojackpot, Lotto 6aus49, Glücksspirale, Freiheit+.",
+    "Use Rajdhani exclusively for metrics, lottery numbers, and large headings to maintain the technical/quantum vibe."
+  ]
+}
