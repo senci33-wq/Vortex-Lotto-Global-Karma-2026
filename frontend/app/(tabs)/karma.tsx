@@ -18,7 +18,7 @@ import * as WebBrowser from "expo-web-browser";
 import * as Haptics from "expo-haptics";
 
 import { Colors, Fonts, Images, Radius, Spacing } from "@/constants/theme";
-import { api, CategoryGroup, ProjectItem } from "@/src/lib/api";
+import { api, CategoryGroup, ProjectItem, RandomKarma } from "@/src/lib/api";
 
 const LABELS: Record<string, string> = {
   ALLE: "Alle",
