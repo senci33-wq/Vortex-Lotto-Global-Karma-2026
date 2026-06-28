@@ -216,7 +216,7 @@ async def analysis(game: str = Query(...)):
     cfg = GAMES.get(game)
     if not cfg:
         raise HTTPException(status_code=400, detail="Unbekanntes Spiel")
-    docs = await db.draws.find({"game": game}, {"_id": 0}).to_list(1000)
+    docs = await db.draws.find({"game": game}, {"_id": 0, "main": 1}).to_list(1000)
 
     counts = {n: 0 for n in range(cfg["mmin"], cfg["mm"] + 1)}
     for d in docs:
