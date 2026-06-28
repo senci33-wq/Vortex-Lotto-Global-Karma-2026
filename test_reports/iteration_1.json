@@ -1,0 +1,42 @@
+{
+  "summary": "Full backend + frontend regression for Vortex Lotto Global Karma 2026. Backend: 14/14 pytest tests pass (health, /games, /quantum/draw for EJ/L649/GS/FR, /projects total=107, /draws CRUD, /analysis). Frontend: All four tabs (Generator, Analyse, Karma, Vision) render correctly on mobile viewport (390x844). Quantum draw button produces correct ball counts per game (EJ=5+2, L649=6+1, GS=7+0 digits, FR=7+0). Karma shows '107 Organisationen', chips filter list (Augsburg filter reduces 76->36 visible items). Analyse: adding numbers via input persists draw, Hot-Zahlen bars render, delete removes draw. Vision shows manifesto + DATENSCHUTZ sections. Tab navigation works. source='crypto' as expected (no ANU key).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "All", "issues": ["IBMPlexSans-Regular/Medium/SemiBold fonts fail to decode via Metro asset URL ('invalid sfntVersion: 168430090') so web falls back to system fonts. Cosmetic only — does not break functionality. Reference: console warnings on every screen load."]}
+    ],
+    "react_native_issues": [
+      {"component": "StyleSheet shadow*", "issue": "'shadow*' style props are deprecated in react-native-web; should migrate to 'boxShadow'. Likely in /app/frontend/constants/theme or LotteryBall/card styles."},
+      {"component": "View pointerEvents", "issue": "'props.pointerEvents is deprecated. Use style.pointerEvents' — emitted by react-native-web. Search components passing pointerEvents as prop."},
+      {"component": "StyleSheet textShadow*", "issue": "'textShadow*' style props are deprecated; should migrate to 'textShadow' shorthand."}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_vortex_api.py",
+    "/app/test_reports/pytest/iter1_results.xml"
+  ],
+  "action_items": [
+    "OPTIONAL: Investigate why IBMPlexSans .ttf files served by Metro return invalid sfntVersion on web preview (likely asset content-type / wrapped HTML response). Fonts fall back gracefully so non-blocking.",
+    "OPTIONAL: Replace deprecated react-native-web style props: shadow* -> boxShadow, textShadow* -> textShadow, and migrate pointerEvents prop to style.pointerEvents."
+  ],
+  "critical_code_review_comments": [
+    "server.py uses motor async correctly, excludes _id via projection {'_id': 0} — good.",
+    "All endpoints under /api prefix and env vars are read without defaults (fails fast) — good.",
+    "Frontend uses process.env.EXPO_PUBLIC_BACKEND_URL — correct.",
+    "All interactive elements have testID — good test coverage."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_vortex_api.py (new)"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "Test added/removed temporary draws via API for EJ; all cleaned up at end of test_delete_draw_and_404.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Use EXPO_PUBLIC_BACKEND_URL from /app/frontend/.env. Backend has NO auth. ANU_API_KEY is intentionally empty -> source='crypto' is correct, NOT a bug. Pytest suite at /app/backend/tests/test_vortex_api.py covers all endpoints and is reusable.",
+  "rca_of_issue": "N/A - no failing tests."
+}
