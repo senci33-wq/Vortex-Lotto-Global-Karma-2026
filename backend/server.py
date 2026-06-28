@@ -150,11 +150,12 @@ async def quantum_draw(payload: dict):
         # Glücksspirale: 7 single digits 0-9 (repetition allowed), order preserved
         main = pool.pick(cfg["mc"], cfg["mmin"], cfg["mm"], unique=False)
     else:
-        main = sorted(pool.pick(cfg["mc"], cfg["mmin"], cfg["mm"], unique=True))
+        # Drawn order (unsorted), like a real live draw
+        main = pool.pick(cfg["mc"], cfg["mmin"], cfg["mm"], unique=True)
 
     extra: List[int] = []
     if cfg["ec"] > 0:
-        extra = sorted(pool.pick(cfg["ec"], cfg["emin"], cfg["em"], unique=True))
+        extra = pool.pick(cfg["ec"], cfg["emin"], cfg["em"], unique=True)
 
     return {
         "game": game,
@@ -237,6 +238,39 @@ async def analysis(game: str = Query(...)):
         "counts": items,
         "hot": hot,
         "cold": cold,
+    }
+
+
+@api_router.get("/karma/random")
+async def karma_random(category: str = Query("ALLE")):
+    try:
+        with open(PROJECTS_FILE, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+    except Exception as e:  # noqa: BLE001
+        raise HTTPException(status_code=500, detail=f"Projekte nicht ladbar: {e}")
+
+    pool_items = []
+    for cat, items in raw.items():
+        if category != "ALLE" and cat != category:
+            continue
+        for it in items:
+            if len(it) >= 2:
+                pool_items.append({"name": it[0], "url": it[1], "category": cat})
+
+    if not pool_items:
+        raise HTTPException(status_code=404, detail="Keine Projekte gefunden")
+
+    pool = make_pool(8)
+    # Uniform pick via rejection sampling over [0, n-1]
+    idx = pool.pick(1, 0, len(pool_items) - 1, unique=True)[0]
+    chosen = pool_items[idx]
+
+    return {
+        "project": {"name": chosen["name"], "url": chosen["url"]},
+        "category": chosen["category"],
+        "poolSize": len(pool_items),
+        "source": pool.source,
+        "picked_at": datetime.now(timezone.utc).isoformat(),
     }
 
 

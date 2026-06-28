@@ -44,6 +44,14 @@ export interface AnalysisResult {
   cold: { n: number; count: number }[];
 }
 
+export interface RandomKarma {
+  project: ProjectItem;
+  category: string;
+  poolSize: number;
+  source: "quantum" | "crypto";
+  picked_at: string;
+}
+
 async function req<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     headers: { "Content-Type": "application/json" },
@@ -67,6 +75,8 @@ export const api = {
       body: JSON.stringify({ game }),
     }),
   getProjects: () => req<ProjectsResponse>("/projects"),
+  randomKarma: (category: string) =>
+    req<RandomKarma>(`/karma/random?category=${encodeURIComponent(category)}`),
   listDraws: (game: GameKey) => req<Draw[]>(`/draws?game=${game}`),
   addDraw: (game: GameKey, main: number[], extra: number[]) =>
     req<Draw>("/draws", {
