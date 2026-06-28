@@ -1,7 +1,9 @@
 import os
 import json
+import time
 import secrets
 import logging
+import threading
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import List, Optional
@@ -44,12 +46,14 @@ GAMES = {
 
 PROJECTS_FILE = ROOT_DIR / "data" / "projekte.json"
 ANU_URL = "https://api.quantumnumbers.anu.edu.au/"
+ANU_LEGACY_URL = "https://qrng.anu.edu.au/API/jsonI.php"
 
 
 # ---------------------------------------------------------------------------
 # Quantum / crypto randomness
 # ---------------------------------------------------------------------------
-def _fetch_anu(n: int) -> Optional[List[int]]:
+def _fetch_anu_new(n: int) -> Optional[List[int]]:
+    """New key-based ANU service (uint16, 0-65535). Needs ANU_API_KEY."""
     key = os.environ.get("ANU_API_KEY", "").strip()
     if not key:
         return None
@@ -63,30 +67,53 @@ def _fetch_anu(n: int) -> Optional[List[int]]:
         data = r.json()
         if r.status_code == 200 and data.get("success") and isinstance(data.get("data"), list):
             return [int(x) for x in data["data"]]
-        logger.warning("ANU API non-success: %s", data)
+        logger.warning("ANU new API non-success: %s", data)
     except Exception as e:  # noqa: BLE001
-        logger.warning("ANU API failed: %s", e)
+        logger.warning("ANU new API failed: %s", e)
+    return None
+
+
+def _fetch_anu_legacy(n: int) -> Optional[List[int]]:
+    """Legacy keyless ANU endpoint jsonI.php (uint8, 0-255). No API key required."""
+    try:
+        r = requests.get(
+            ANU_LEGACY_URL,
+            params={"length": max(1, min(n, 1024)), "type": "uint8"},
+            headers={"User-Agent": "Mozilla/5.0"},
+            timeout=8,
+        )
+        data = r.json()
+        if r.status_code == 200 and data.get("success") and isinstance(data.get("data"), list):
+            return [int(x) for x in data["data"]]
+        logger.warning("ANU legacy API non-success: %s", data)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("ANU legacy API failed: %s", e)
     return None
 
 
 class RandomPool:
-    """Yields random 16-bit ints from a quantum pool, refilling with crypto bytes."""
+    """Yields random ints from a quantum pool, refilling with crypto bytes.
 
-    def __init__(self, pool: List[int], source: str):
+    `maxval` is the exclusive upper bound of each raw value (256 for uint8,
+    65536 for uint16) and is used for unbiased rejection sampling.
+    """
+
+    def __init__(self, pool: List[int], source: str, maxval: int):
         self._pool = pool
         self._i = 0
+        self.maxval = maxval
         self.source = source
 
     def _next(self) -> int:
         if self._i >= len(self._pool):
-            self._pool.extend(secrets.randbelow(65536) for _ in range(64))
+            self._pool.extend(secrets.randbelow(self.maxval) for _ in range(64))
         v = self._pool[self._i]
         self._i += 1
         return v
 
     def pick(self, count: int, lo: int, hi: int, unique: bool = True) -> List[int]:
         span = hi - lo + 1
-        limit = 65536 - (65536 % span)  # rejection sampling to avoid modulo bias
+        limit = self.maxval - (self.maxval % span)  # rejection sampling -> no modulo bias
         res: List[int] = []
         guard = 0
         while len(res) < count and guard < 100000:
@@ -101,11 +128,50 @@ class RandomPool:
         return res
 
 
+# ---------------------------------------------------------------------------
+# Server-side quantum buffer.
+# The keyless ANU endpoint is limited to ~1 request/minute, so we fetch a large
+# batch (up to 1024 values) at most once per minute and serve many draws from it.
+# ---------------------------------------------------------------------------
+_BUF_LOCK = threading.Lock()
+_quantum_buffer: List[int] = []
+_buffer_maxval = 256
+_last_fetch = 0.0
+_LEGACY_COOLDOWN = 62  # seconds; respect ANU's 1 req/min limit
+
+
+def _refill_buffer() -> bool:
+    global _last_fetch, _buffer_maxval
+    key = os.environ.get("ANU_API_KEY", "").strip()
+    if key:
+        data = _fetch_anu_new(1024)
+        if data:
+            _quantum_buffer.extend(data)
+            _buffer_maxval = 65536
+            _last_fetch = time.time()
+            return True
+        return False
+    # Keyless legacy endpoint: only attempt once per cooldown window.
+    if time.time() - _last_fetch < _LEGACY_COOLDOWN:
+        return False
+    _last_fetch = time.time()
+    data = _fetch_anu_legacy(1024)
+    if data:
+        _quantum_buffer.extend(data)
+        _buffer_maxval = 256
+        return True
+    return False
+
+
 def make_pool(n: int) -> RandomPool:
-    quantum = _fetch_anu(n)
-    if quantum:
-        return RandomPool(quantum, "quantum")
-    return RandomPool([secrets.randbelow(65536) for _ in range(max(n, 32))], "crypto")
+    with _BUF_LOCK:
+        if len(_quantum_buffer) < n:
+            _refill_buffer()
+        if len(_quantum_buffer) >= n:
+            chunk = _quantum_buffer[:n]
+            del _quantum_buffer[:n]
+            return RandomPool(chunk, "quantum", _buffer_maxval)
+    return RandomPool([secrets.randbelow(65536) for _ in range(max(n, 32))], "crypto", 65536)
 
 
 # ---------------------------------------------------------------------------

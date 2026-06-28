@@ -3,7 +3,11 @@ import os
 import pytest
 import requests
 
-BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://project-ready-go.preview.emergentagent.com").rstrip("/")
+BASE_URL = (
+    os.environ.get("EXPO_PUBLIC_BACKEND_URL")
+    or os.environ.get("EXPO_BACKEND_URL")
+    or "https://project-ready-go.preview.emergentagent.com"
+).rstrip("/")
 API = f"{BASE_URL}/api"
 
 
@@ -47,8 +51,7 @@ class TestQuantumDraw:
         data = r.json()
         assert data["game"] == game
         assert data["source"] in ("crypto", "quantum")
-        # No ANU key configured -> expect crypto fallback
-        assert data["source"] == "crypto"
+        # Both sources are valid: server uses ANU legacy buffer (1/min) with crypto fallback
         main = data["main"]
         assert len(main) == mc, f"{game}: main len {len(main)} != {mc}"
         for v in main:
@@ -130,3 +133,36 @@ class TestDrawsCRUD:
             r2 = session.delete(f"{API}/draws/{did}")
             assert r2.status_code == 404
         TestDrawsCRUD.created_ids.clear()
+
+
+# ---- Karma random project ----
+class TestKarmaRandom:
+    def test_karma_all(self, session):
+        r = session.get(f"{API}/karma/random", params={"category": "ALLE"})
+        assert r.status_code == 200, r.text
+        data = r.json()
+        assert "project" in data and "name" in data["project"] and "url" in data["project"]
+        assert data["source"] in ("crypto", "quantum")
+        assert data["poolSize"] == 107, f"poolSize {data['poolSize']} != 107 for ALLE"
+        assert "category" in data and data["category"]
+
+    def test_karma_augsburg_restricts(self, session):
+        # Verify category restriction: every sample stays inside requested category
+        # and poolSize matches the count for that category from /projects
+        r_proj = session.get(f"{API}/projects")
+        assert r_proj.status_code == 200
+        cats = {c["category"]: c["count"] for c in r_proj.json()["categories"]}
+        assert "AUGSBURG" in cats, f"AUGSBURG not in categories: {list(cats)}"
+        expected = cats["AUGSBURG"]
+
+        for _ in range(5):
+            r = session.get(f"{API}/karma/random", params={"category": "AUGSBURG"})
+            assert r.status_code == 200, r.text
+            d = r.json()
+            assert d["category"] == "AUGSBURG", f"got {d['category']}"
+            assert d["poolSize"] == expected, f"poolSize {d['poolSize']} != {expected}"
+            assert d["source"] in ("crypto", "quantum")
+
+    def test_karma_unknown_category_404(self, session):
+        r = session.get(f"{API}/karma/random", params={"category": "NICHT_VORHANDEN"})
+        assert r.status_code == 404
