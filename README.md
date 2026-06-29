@@ -10,3 +10,7 @@ Ein non-profit Lotterie-Generator, der auf echtem Quantenzufall basiert und Karm
 ## Datenquellen
 - Lottozahlen: [ANU Quantum API](https://quantumnumbers.anu.edu.au/)
 - Projekte: Dynamisch via `projekte.json`
+
+## App Test
+
+[Issues](https://github.com/senci33-wq/Vortex-Lotto-Global-Karma-2026/issues)
